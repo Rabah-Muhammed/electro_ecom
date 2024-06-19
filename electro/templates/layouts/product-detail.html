@@ -1,0 +1,275 @@
+{% extends 'layouts/main.html' %}
+
+{% load static %}
+
+{% block body %}
+
+<div class="res-header w-100">
+  <div class="res-topbar w-100">
+    <div class="container">
+      <div class="res-topbar-inner d-flex flex-wrap align-items-center justify-content-between">
+        <div class="logo">
+          <h1 class="mb-0">
+            <a href="index.html"><img src="{% static '/images/logo.webp' %}"></a></h1>
+        </div>
+                            <ul class="shp-lst list-unstyled d-flex align-items-center justify-content-end">
+                                <li class="bar">
+                                <a class="responsive-menu-trigger d-inline-block" href="#" onclick="showMenu()"><i class="fi fi-rr-align-justify"></i></a>
+                            </li>
+                                <li><a style="font-weight: 300;" href="#"><img src="{% static '/images/resources/icon-3.png' %}" alt=""></a></li>
+                                <li><a style="font-weight: 500;" href="#"><img src="{% static '/images/resources/icon-4.png' %}" alt=""></a></li>
+                            </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mobile-nav position-relative">
+     <div class="nav-links" id="navLinks">
+      <a href="#" class="position-absolute res-menu-close" onclick="hideMenu()">
+      <i class="fa-solid fa-xmark"></i></a>
+      <ul class="mobile-res list-unstyled mb-0">
+        <li><a href="index.html">Home</a></li>
+        <li><a class="collapsed" data-bs-toggle="collapse" data-bs-target="#mb-one" aria-controls="mb-one" href="index.html">Shop <i class="fa-solid fa-angle-down"></i></a>
+                                <ul class="collapse children mb-0 w-100 list-unstyled" id="mb-one">
+                                    <li><a href="shop-fullwidth.html">Shop Fullwidth</a></li>
+                                    <li><a href="shop-sidebar.html">Shop With Sidebar</a></li>
+                                </ul>
+                            </li>
+                            <li><a class="collapsed" data-bs-toggle="collapse" data-bs-target="#mb-two" aria-controls="mb-two" href="index.html">Product <i class="fa-solid fa-angle-down"></i></a>
+                                <ul id="mb-two" class="collapse children mb-0 w-100 list-unstyled">
+                                    <li><a href="product-detail.html">Product-Detail</a></li>
+                                    
+                                </ul>
+                            </li>
+                            <li><a class="collapsed" data-bs-toggle="collapse" data-bs-target="#mb-three" aria-controls="mb-three"  href="index.html">Pages <i class="fa-solid fa-angle-down"></i></a>
+                                <ul id="mb-three" class="collapse children mb-0 w-100 list-unstyled">
+                                    <li><a href="contact-us.html">Contact Us</a></li>
+                                    <li><a href="faq.html">FAQs</a></li>
+                                    <li><a href="about.html">About Us</a></li>
+                                </ul>
+                            </li>
+                            <li><a class="collapsed" data-bs-toggle="collapse" data-bs-target="#mb-four" aria-controls="mb-four" href="index.html">Blog <i class="fa-solid fa-angle-down"></i></a>
+                                <ul id="mb-four" class="collapse children mb-0 w-100 list-unstyled">
+                                    <li><a href="blog-grid.html">Blog Grid</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="index.html">Buy Now</a></li>
+
+</ul>
+    </div>
+   </div>
+<script>
+  var navLinks = document.getElementById("navLinks");
+  function showMenu(){
+    navLinks.style.right = "0";
+  }
+   function hideMenu(){
+    navLinks.style.right = "-322px";
+  }
+
+</script>
+
+<div class="border-top" style="opacity: .3;"></div>
+<div class="container">
+    <div class="breadcrumbs row align-items-center justify-content-between d-flex">
+        <div class="col-12">
+            <ul class="breadcrumbs_content list-unstyled d-flex justify-content-center">
+                <li class="home">
+                    <a title="Home" href="/" itemprop="url">
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <span><i class="fa-solid fa-angle-right"></i> Product-Detail</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="border-top mb-2" style="opacity: .3;"></div>
+
+<section>
+<div class="w-100 pt-4 position-relative">
+<div class="container">
+
+ <div class="product-detail position-relative w-100">
+
+  <div class="row">
+
+   <div class="col-md-12 col-sm-12 col-lg-6">
+
+    <div class="product-detail-imgs position-relative w-100">
+ 
+    <div class="big-img">
+     <a href="{% static '/images/resources/big-img-1.jpg' %}">
+      <img src="{{ single_product.images.url }}" style="
+    width: 100%;
+"></a>
+    </div>
+
+    <!--product-detail-imgs--></div>
+
+   <!--col--></div>
+
+
+  <div class="col-md-12 col-sm-12 col-lg-6 ">
+
+   <div class="product-detail-info position-relative w-100">
+
+    <div class="product-rate-review d-flex flex-wrap align-items-center">
+                                    
+      <span class="d-inline-block rate">
+       <i class="fas fa-star on"></i>
+       <i class="fas fa-star on"></i>
+       <i class="fas fa-star on"></i>
+       <i class="fas fa-star on"></i>
+       <i class="fas fa-star off"></i>
+      </span>
+                                    
+      <a class="d-inline-block review-link" href="#">(1 customer review)</a>
+                                
+    <!--product-rate--></div>
+
+    <h2 class="mb-0">{{ single_product.product_name }}</h2>
+    <span class="d-block price">₹ {{ single_product.price }}</span>
+
+    <ul class="product-stock-info list-unstyled mb-0">
+                                    
+     <li>In stock</li>
+     <li>Free delivery available</li>
+     <li>Sales 30% Off Use Code: MOTIVE30</li>
+                               
+    </ul>
+
+    <p class="mb-0">
+               {{ single_product.description }}.</p>
+
+    <div class="products-color d-flex flex-wrap align-items-center w-100">
+        
+
+        <!--products-color--></div>
+
+    <div class="products-size d-flex flex-wrap align-items-center w-100">
+                                    
+    
+                                
+    <!--products-size--></div>
+
+
+    <div class="product-bottom d-flex flex-wrap align-items-center w-100">
+                                    
+     <div class="product-quanty">
+         
+      <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
+
+       <span class="input-group-btn input-group-prepend">
+        <button class="btn btn-primary bootstrap-touchspin-down" type="button">-</button>
+       </span>
+  
+       <input type="number" class="qty form-control" value="01">
+       <span class="input-group-btn input-group-append">
+        <button class="btn btn-primary bootstrap-touchspin-up" type="button">+</button>
+       </span>
+
+      <!--input-group--></div>
+     
+     <!--product-quanty--></div>
+                                    
+      <button class="theme-btn bg-color1" type="submit">Add to Cart
+       
+      </button>
+                              
+      
+        
+    <!--product-bottom--></div>
+    <div class="wish my-4">
+<a class="heart-btn d-inline-block rounded-circle" href="wishlist.html" title=""><i class="fi-rr-heart"></i>Add to Wishlist</a></div>
+<div class="safe-check">
+  <img src="{% static '/images/resources/safe.png' %}">
+</div>
+
+   <!--porduct-detail-info--></div>
+  <!--col--></div>
+
+  <!--row--></div>
+ <!--product-detail--></div>
+
+<!--container--></div>
+<!--w-100--></div>
+</section>
+
+<section style="margin-top:70px;margin-bottom:40px;">
+<div class="w-100 position-relative bg-color5 pt-70 pb-120">
+<div class="container">
+
+ <div class="product-tabs position-relative w-100">
+
+
+  <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Description</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Additional Information</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Reviews</button>
+  </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+
+  <div class="product-detail-tab-content w-100">
+
+      <h4 class="mb-0">Product Information</h4>
+      <p class="mb-0">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.</p>
+      <ul class="my-3 tab-lst">
+        <li>Nunc nec porttitor turpis. In eu risus enim. In vitae mollis elit.</li>
+        <li>Vivamus finibus vel mauris ut vehicula.</li>
+        <li>Nullam a magna porttitor, dictum risus nec, faucibus sapien.</li>
+      </ul>
+      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.</p>
+  <!--content--></div>
+</div>
+  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+
+  <div class="product-detail-tab-content w-100">
+
+      <h4 class="mb-0">Product Information</h4>
+      <p class="mb-0">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.</p>
+      <ul class="my-3 tab-lst">
+        <li>Nunc nec porttitor turpis. In eu risus enim. In vitae mollis elit.</li>
+        <li>Vivamus finibus vel mauris ut vehicula.</li>
+        <li>Nullam a magna porttitor, dictum risus nec, faucibus sapien.</li>
+      </ul>
+      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.</p>
+  <!--content--></div>
+
+</div>
+  <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+
+ <div class="product-detail-tab-content w-100">
+
+      <h4 class="mb-0">Product Information</h4>
+      <p class="mb-0">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.</p>
+      <ul class="my-3 tab-lst">
+        <li>Nunc nec porttitor turpis. In eu risus enim. In vitae mollis elit.</li>
+        <li>Vivamus finibus vel mauris ut vehicula.</li>
+        <li>Nullam a magna porttitor, dictum risus nec, faucibus sapien.</li>
+      </ul>
+      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.</p>
+  <!--content--></div>
+
+</div>
+
+ <!--porduct-tabs--></div>
+
+<!--container--></div>
+<!--w-100--></div>
+</section>
+
+
+
+{% endblock body %}
+
