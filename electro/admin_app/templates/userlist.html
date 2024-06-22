@@ -1,0 +1,71 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+</head>
+<body>
+    <h1>User List</h1>
+    <ul>
+        {% for user in users %}
+            <li>{{ user.username }}
+                {% if user.profile.is_blocked %}
+                    <form action="{% url 'unblock_user' user.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Unblock</button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'block_user' user.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Block</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>No users found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html> -->
+
+<!-- user_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <style>
+        .blocked {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>User List</h1>
+    <ul>
+        {% for user in users %}
+            <li class="{% if user.profile.is_blocked %}blocked{% endif %}">
+                {{ user.username }}
+                {% if user.profile.is_blocked %}
+                    <form action="{% url 'unblockuser' user.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Unblock</button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'blockuser' user.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Block</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>No users found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+

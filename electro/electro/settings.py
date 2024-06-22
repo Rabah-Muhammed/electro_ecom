@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'userapp',
     'category',
     'product',
+    'admin_app',
+    
 ]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -51,7 +53,6 @@ EMAIL_HOST_USER = 'workworkworkwork31@gmail.com'
 EMAIL_HOST_PASSWORD = 'uuno ckuf tjrf gmuc'
 
 
-# AUTH_USER_MODEL = 'userapp.CustomUser'
 
 
 MIDDLEWARE = [
@@ -69,7 +70,7 @@ ROOT_URLCONF = 'electro.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': [BASE_DIR /'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

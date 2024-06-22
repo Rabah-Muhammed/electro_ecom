@@ -115,29 +115,39 @@
 
               <h2 class="mb-0">{{ single_product.product_name }}</h2>
               <span class="d-block price">₹ {{ single_product.price }}</span>
-              {{single_product.stock}}
+<br>
+              <h6>Stock: {{single_product.stock}}</h6>
 
               <ul class="product-stock-info list-unstyled mb-0">
+                {% if single_product.stock <= 0 %}
+                <li>Out of stock</li>
+                {% else %}
                 <li>In stock</li>
                 <li>Free delivery available</li>
                 <li>Sales 30% Off Use Code: MOTIVE30</li>
               </ul>
+              {% endif %}
+              
               <p class="mb-0">{{ single_product.description }}</p>
 <br>
-              <div class="product-bottom d-flex flex-wrap align-items-center w-100">
-                <div class="product-quanty">
-                  <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
-                    <span class="input-group-btn input-group-prepend">
-                      <button class="btn btn-primary bootstrap-touchspin-down" type="button">-</button>
-                    </span>
-                    <input type="number" class="qty form-control" value="01">
-                    <span class="input-group-btn input-group-append">
-                      <button class="btn btn-primary bootstrap-touchspin-up" type="button">+</button>
-                    </span>
-                  </div>
-                </div>
-                <button class="theme-btn bg-color1" type="submit">Add to Cart</button>
+          {% if single_product.stock <= 0 %}
+          <h5>Out of Stock</h5>
+          {% else %}         
+          <div class="product-bottom d-flex flex-wrap align-items-center w-100">
+            <div class="product-quanty">
+              <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
+                <span class="input-group-btn input-group-prepend">
+                  <button class="btn btn-primary bootstrap-touchspin-down" type="button">-</button>
+                </span>
+                <input type="number" class="qty form-control" value="01">
+                <span class="input-group-btn input-group-append">
+                  <button class="btn btn-primary bootstrap-touchspin-up" type="button">+</button>
+                </span>
               </div>
+            </div>
+            <button class="theme-btn bg-color1" type="submit">Add to Cart</button>
+          </div>
+          {% endif %}
 
               <div class="wish my-4">
                 <a class="heart-btn d-inline-block rounded-circle" href="wishlist.html" title=""><i class="fi-rr-heart"></i>Add to Wishlist</a>
