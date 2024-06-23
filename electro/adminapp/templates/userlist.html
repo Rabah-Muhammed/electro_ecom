@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        .blocked {
+            color: red;
+        }
+        .user-info {
+            flex-grow: 1;
+        }
+        button {
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .block-button {
+            background-color: #dc3545;
+        }
+        .block-button:hover {
+            background-color: #c82333;
+        }
+        .unblock-button {
+            background-color: #007bff;
+        }
+        .unblock-button:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 600px) {
+            li {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .user-info {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User List</h1>
+        <ul>
+            {% for user in users %}
+                <li class="{% if user.profile.is_blocked %}blocked{% endif %}">
+                    <span class="user-info">{{ user.username }}</span>
+                    {% if user.profile.is_blocked %}
+                        <form action="{% url 'unblockuser' user.id %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="unblock-button">Unblock</button>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'blockuser' user.id %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="block-button">Block</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li>No users found.</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'ahome' %}" class="btn btn-sm btn-dark">Home</a>
+    </div>
+    
+
+</body>
+</html>

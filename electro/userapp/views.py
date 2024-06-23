@@ -66,9 +66,11 @@ from django.contrib.auth import authenticate, login as auth_login, logout as log
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
+from product.models import Product
 from .models import OTP
 from .forms import RegisterForm, OTPForm
-from product.models import Product
+
+
 
 def generate_otp():
     return str(random.randint(100000, 999999))
@@ -162,6 +164,7 @@ def resend_otp(request):
 
     return redirect('verify_otp')
 
+
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -178,5 +181,4 @@ def login(request):
 def logout(request):
     logout_page(request)
     return redirect('login')
-
 

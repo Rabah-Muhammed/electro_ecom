@@ -1,0 +1,55 @@
+<!-- adminapp/templates/adminapp/category_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category List</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+        .category-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .category-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .category-list li a {
+            margin-left: 10px;
+        }
+        .category-list li a.btn {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Category List</h1>
+        <a href="{% url 'addcategory' %}" class="btn btn-primary mb-3">Add Category</a>
+        <ul class="category-list">
+            {% for category in categories %}
+                <li>
+                    <span>{{ category.category_name }}</span>
+                    <a href="{% url 'editcategory' category.id %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'deletecategory' category.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'ahome' %}" class="btn btn-sm btn-dark">Home</a>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

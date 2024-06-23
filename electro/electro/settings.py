@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'userapp',
     'category',
     'product',
-    'admin_app',
+    'adminapp',
+    
     
 ]
 
@@ -52,7 +53,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'workworkworkwork31@gmail.com'
 EMAIL_HOST_PASSWORD = 'uuno ckuf tjrf gmuc'
 
-
+ALLOWED_HOSTS = [ ]
 
 
 MIDDLEWARE = [
