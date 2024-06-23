@@ -8,12 +8,13 @@ from django.shortcuts import render
 from django.contrib.auth.models import User 
 from .models import Profile
 from category.models import Category
+from product.models import Product
 
 
 logger = logging.getLogger(__name__)
 
 def adminlogin(request):
-    error_message = None  # Initialize the error_message variable
+    error_message = None 
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -35,7 +36,7 @@ def adminlogin(request):
     
     return render(request, 'adminlogin.html', {'error_message': error_message})
 
-@login_required
+@login_required(login_url='alogin')
 def ahome(request):
     return render(request, 'ahome.html')
 
@@ -135,3 +136,77 @@ def deletecategory(request, category_id, soft_delete=True):
         return redirect('categorylist')
     
     return render(request, 'deletecategory.html', {'category': category})
+
+def productlist(request):
+    products = Product.objects.all()
+    return render(request, 'productlist.html', {'products': products})
+
+def addproduct(request):
+    if request.method == 'POST':
+        product_name = request.POST.get('product_name')
+        description = request.POST.get('description')
+        price = request.POST.get('price')
+        image = request.FILES.get('image')
+        stock = request.POST.get('stock')
+        category_id = request.POST.get('category')
+        is_available = request.POST.get('is_available', False)
+        
+        # Ensure category exists
+        category = get_object_or_404(Category, id=category_id)
+        
+        Product.objects.create(
+            product_name=product_name,
+            description=description,
+            price=price,
+            images=image,
+            stock=stock,
+            category=category,
+            is_available=is_available
+        )
+        messages.success(request, 'Product added successfully.')
+        return redirect('productlist')
+    
+    return render(request, 'addproduct.html')
+
+def editproduct(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        product.product_name = request.POST.get('product_name')
+        product.description = request.POST.get('description')
+        product.price = request.POST.get('price')
+        product.stock = request.POST.get('stock')
+        product.category_id = request.POST.get('category')
+        
+        # Handling is_available checkbox
+        is_available = request.POST.get('is_available', False)
+        if is_available == 'on':
+            product.is_available = True
+        else:
+            product.is_available = False
+        
+        image = request.FILES.get('image')
+        if image:
+            product.images = image
+        
+        try:
+            
+            product.save()
+            messages.success(request, 'Product updated successfully.')
+            return redirect('productlist')
+        except ValueError as e:
+            messages.error(request, f'Error updating product: {str(e)}')
+    
+    categories = Category.objects.all()  # Fetch all categories for dropdown
+    return render(request, 'editproduct.html', {'product': product, 'categories': categories})
+
+def deleteproduct(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        product.is_deleted = True
+        product.save()
+        messages.success(request, f'Product "{product.product_name}" has been marked as deleted.')
+        return redirect('productlist')
+    
+    return render(request, 'deleteproduct.html', {'product': product})
