@@ -96,7 +96,7 @@ WSGI_APPLICATION = 'electro.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'electro_base',
+        'NAME': 'ecom_project',
         'USER':'postgres',
         'PASSWORD':'rabarabi22',
         'HOST':'localhost',
