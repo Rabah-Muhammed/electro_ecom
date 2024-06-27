@@ -15,7 +15,7 @@ def store(request,category_slug=None):
         product_count = products.count()
     else:
 
-        products = Product.objects.all().filter(is_available=True)
+        products = Product.objects.all().filter(is_available=True).order_by('-created_date')
         product_count = products.count()
 
     context = {
@@ -29,11 +29,13 @@ def store(request,category_slug=None):
 def product_detail(request,category_slug,product_slug):
     try:
         single_product = Product.objects.get(category__slug=category_slug,slug=product_slug)
+        related_products = Product.objects.filter(category__slug=category_slug).exclude(slug=product_slug)
     except Exception as e:
         raise e
     
     context = {
-        'single_product' : single_product
+        'single_product' : single_product,
+        'products':related_products
     }
 
     return render(request,'layouts/product-detail.html',context)

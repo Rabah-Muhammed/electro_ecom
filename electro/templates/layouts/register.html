@@ -10,6 +10,7 @@
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             padding: 20px;
+            margin: 0; /* Reset default margin */
         }
         .container {
             max-width: 400px;
@@ -22,24 +23,30 @@
         h2 {
             text-align: center;
             margin-bottom: 20px;
+            color: #000000; /* Green color for the heading */
         }
         form {
             display: flex;
             flex-direction: column;
         }
+        label {
+            margin-bottom: 8px;
+            font-weight: bold; /* Make labels bold */
+        }
         input[type="text"], input[type="email"], input[type="password"] {
             margin-bottom: 10px;
-            padding: 10px;
+            padding: 12px; /* Slightly increased padding */
             font-size: 16px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            width: 100%; /* Full-width input fields */
         }
         button {
-            background-color: #4CAF50;
+            background-color: #33a7c4;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 14px 20px; /* Slightly increased padding */
             text-align: center;
             text-decoration: none;
             display: inline-block;
@@ -47,34 +54,108 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            width: 100%; /* Full-width button */
+            margin-top: 10px; /* Spacing from inputs */
         }
         button:hover {
             background-color: #313631;
         }
         .error {
             color: red;
-            margin-top: 10px;
+            margin-top: 5px; /* Reduced margin for error messages */
+        }
+        .form-field {
+            margin-bottom: 15px; /* Increased spacing between fields */
+        }
+        @media (max-width: 600px) {
+            /* Adjustments for smaller screens */
+            .container {
+                padding: 15px;
+            }
+            input[type="text"], input[type="email"], input[type="password"], button {
+                padding: 10px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
-<br>
-<br>
-<br>
-<br>
 <body>
+    <br>
+    <br>
     <div class="container">
         <h2>User Registration</h2>
-        <form method="post">
+        <form id="registrationForm" method="post" onsubmit="return validateForm()">
             {% csrf_token %}
-            {{ form.as_p }}
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li><span class="error">{{ error }}</span></li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
             {% if error_message %}
                 <p class="error">{{ error_message }}</p>
             {% endif %}
             <button type="submit">Register</button>
         </form>
     </div>
+
+    <script>
+        function validateForm() {
+            var password = document.getElementById('id_password1').value;
+            var confirmPassword = document.getElementById('id_password2').value;
+            var errors = [];
+
+            // Password length check
+            if (password.length < 8) {
+                errors.push("Password must be at least 8 characters long.");
+            }
+
+            // Regex checks for uppercase letter and digit
+            var upperCaseRegex = /[A-Z]/;
+            var digitRegex = /[0-9]/;
+
+            if (!upperCaseRegex.test(password)) {
+                errors.push("Password must contain at least one uppercase letter.");
+            }
+
+            if (!digitRegex.test(password)) {
+                errors.push("Password must contain at least one digit.");
+            }
+
+            // Display errors if any
+            if (errors.length > 0) {
+                var errorList = document.createElement('ul');
+                errorList.classList.add('errorlist');
+                errors.forEach(function(error) {
+                    var errorItem = document.createElement('li');
+                    errorItem.innerHTML = '<span class="error">' + error + '</span>';
+                    errorList.appendChild(errorItem);
+                });
+
+                // Remove previous error list if exists
+                var existingErrorList = document.querySelector('.errorlist');
+                if (existingErrorList) {
+                    existingErrorList.remove();
+                }
+
+                // Append new error list before the Register button
+                var form = document.getElementById('registrationForm');
+                form.insertBefore(errorList, form.querySelector('button'));
+                
+                // Prevent form submission
+                return false;
+            }
+
+            // If no errors, proceed with form submission
+            return true;
+        }
+    </script>
 </body>
 </html>
-
-
-

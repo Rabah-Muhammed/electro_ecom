@@ -15,8 +15,9 @@
                         <li><a href="#"><i class="fa-brands fa-google-plus-g"></i></a></li>
                         <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
                         <li><a href="#"><i class="fa-brands fa-youtube"></i></a></li>
+                        {% if user.is_authenticated %}
                         <li><a href="{% url 'logout' %}"><i class="fa-regular fa-user"></i> Logout</a></li>
-                                 
+                        {% endif %}         
                     </ul>
                 </div>
             </div>
@@ -87,7 +88,7 @@
                     <li class="active"><a href="/">Home</a>
 
                        <div class="megamenu-wrap">
-brdgd
+
 <div class="container">
 
 <!--container--></div>  
@@ -101,7 +102,10 @@ brdgd
                         </ul>
                     </li>
                     <li><a href="{% url 'products' %}">Products </a>
-                    
+
+                    <li><a href="#">Contact Us </a>
+
+                    {% if not user.is_authenticated %}
                     </li>
                     <li><a href="{% url 'login' %}">Sign In </a>
                       
@@ -109,6 +113,7 @@ brdgd
                     <li><a href="{% url 'register' %}">Register</a>
                     
                     </li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>

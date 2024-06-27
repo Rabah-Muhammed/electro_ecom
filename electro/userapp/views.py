@@ -66,9 +66,11 @@ from django.contrib.auth import authenticate, login as auth_login, logout as log
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
+from category.models import Category
 from product.models import Product
 from .models import OTP
 from .forms import RegisterForm, OTPForm
+from django.views.decorators.cache import never_cache
 
 
 
@@ -82,12 +84,21 @@ def send_otp_via_email(email, otp):
     recipient_list = [email]
     send_mail(subject, message, email_from, recipient_list)
 
-@login_required(login_url='login')
 def index(request):
-    products = Product.objects.all().filter(is_available=True)
-    context = {'products': products}
+    
+    category = Category.objects.get(category_name='Gaming') 
+    products = Product.objects.filter(category=category, is_available=True)
+
+    recent_arrivals_names = ['SKMEI Mens Watch New Wheels', 'CMF by Nothing Buds Pro', 'ZEBRONICS-Transformer-mouse', 'Apple iPhone 15 Pro Max']
+    recent_arrivals = Product.objects.filter(product_name__in=recent_arrivals_names, is_available=True)
+
+    context = {
+        'products': products,
+        'recent_arrivals':recent_arrivals
+        }
     return render(request, 'layouts/index.html', context)
 
+@never_cache
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -164,7 +175,7 @@ def resend_otp(request):
 
     return redirect('verify_otp')
 
-
+@never_cache
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -177,7 +188,8 @@ def login(request):
         else:
             return render(request, 'layouts/login.html', {'error_message': 'You need to create an account!!!'})
     return render(request, 'layouts/login.html')
-
+    
+@never_cache
 def logout(request):
     logout_page(request)
     return redirect('login')

@@ -56,7 +56,7 @@
                               <div class="anime left subtitle">Monsoon<br><strong class="text-primary">sale</strong></div>
                               <div class="anime right description">Up to 50% off</div>
                               <div class="anime down button list-inline-item">
-                                  <a class="btn btn-outline " href="#"><span>SHOP NOW <i style="padding-left: 10px;font-size: 14px;"class="fa-solid fa-arrow-right"></i></span>
+                                  <a class="btn btn-outline " href="{% url 'products' %}"><span>SHOP NOW <i style="padding-left: 10px;font-size: 14px;"class="fa-solid fa-arrow-right"></i></span>
                                       
                                   </a>
                               </div>
@@ -245,7 +245,8 @@
                   </div>
               </div>
         <div class="row">
-            {% for product in  products|slice:"4:8" %} 
+            {% for product in  recent_arrivals %} 
+            
             <div class="col-lg-3 col-md-6 col-sm-12">
                 <div class="block-product">
                     <div class="product-thumb position-relative">

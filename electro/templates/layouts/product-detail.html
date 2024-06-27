@@ -200,6 +200,53 @@ document.addEventListener("DOMContentLoaded", function() {
 
 </section>
 
+<section>
+  <div class="w-100 img-set" style="margin-top:60px;">
+      <div class="container">
+          <div class="row">
+              <div class="sec-tl text-center">
+                  <h1>RELATED PRODUCTS</h1>
+              </div>
+          </div>
+    <div class="row">
+        {% for product in  products %} 
+        
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <div class="block-product">
+                <div class="product-thumb position-relative">
+                    <a href="#"><img src="{{ product.images.url }}"></a>
+                    <a href="#" class="ad-cart position-absolute text-center">
+                        <span>Add to Cart</span>
+                    </a>
+                    <div class="product-btns position-absolute">
+                      <a class="wishlist-btn" href="wishlist.html" style="transition-delay:0ms;">
+                          <i class="fi fi-rr-heart"></i>
+                      </a>
+                      <a class="cart-btn" href="cart.html" style="transition-delay: 45ms;">
+                          <i class="fi-rr-shopping-bag"></i>
+                      </a>
+                      <a class="expand-btn" href="{% url 'product_detail' category_slug=product.category.slug product_slug=product.slug %}" style="transition-delay:90ms;">
+                          <i class="fi fi-rr-picture"></i>
+                      </a>
+
+      <!--product-btns--></div>
+                </div>
+                <div class="product-body text-center">
+                    <a href="#" class="brand-name">{{ product.product_name }}</a>
+                    <h2 class="product-name">
+                      <a href="#">{{ product.product_name }}</a></h2>
+                      <span class="product-price">₹ {{ product.price }}</span>
+                      
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</section>
+
+
+
 <section style="margin-top:70px;margin-bottom:40px;">
 <div class="w-100 position-relative bg-color5 pt-70 pb-120">
 <div class="container">
