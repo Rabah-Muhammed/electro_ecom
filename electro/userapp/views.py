@@ -71,7 +71,7 @@ from product.models import Product
 from .models import OTP
 from .forms import RegisterForm, OTPForm
 from django.views.decorators.cache import never_cache
-
+from django.views.decorators.cache import cache_control
 
 
 def generate_otp():
@@ -84,6 +84,8 @@ def send_otp_via_email(email, otp):
     recipient_list = [email]
     send_mail(subject, message, email_from, recipient_list)
 
+
+@cache_control(no_cache=True,must_revalidate=True,no_store=True)  
 def index(request):
     
     category = Category.objects.get(category_name='Gaming') 
@@ -98,7 +100,7 @@ def index(request):
         }
     return render(request, 'layouts/index.html', context)
 
-@never_cache
+@cache_control(no_cache=True,must_revalidate=True,no_store=True)  
 def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -175,7 +177,7 @@ def resend_otp(request):
 
     return redirect('verify_otp')
 
-@never_cache
+@cache_control(no_cache=True,must_revalidate=True,no_store=True)  
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -189,7 +191,10 @@ def login(request):
             return render(request, 'layouts/login.html', {'error_message': 'You need to create an account!!!'})
     return render(request, 'layouts/login.html')
     
-@never_cache
+
+
+@cache_control(no_cache=True,must_revalidate=True,no_store=True)  
+@login_required(login_url='login')
 def logout(request):
     logout_page(request)
     return redirect('login')
