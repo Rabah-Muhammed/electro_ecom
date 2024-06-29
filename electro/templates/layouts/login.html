@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,23 +47,30 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-bottom: 10px;
         }
         button:hover {
+            background-color: #313631;
+        }
+        .register-btn, .home-btn {
+            background-color: #33a7c4;
+        }
+        .register-btn:hover, .home-btn:hover {
             background-color: #313631;
         }
         .error {
             color: red;
             margin-top: 10px;
         }
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn-container a {
+            text-decoration: none;
+        }
     </style>
 </head>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 <body>
     <div class="container">
         <h2>User Login</h2>
@@ -77,6 +83,14 @@
                 <p class="error">{{ error_message }}</p>
             {% endif %}
         </form>
+        <div class="btn-container">
+            <a href="{% url 'register' %}">
+                <button class="register-btn">Register</button>
+            </a>
+            <a href="{% url 'home' %}">
+                <button class="home-btn">Home</button>
+            </a>
+        </div>
     </div>
 </body>
 </html>

@@ -94,6 +94,11 @@
         <div class="row">
           <div class="col-md-12 col-sm-12 col-lg-6">
             <div class="product-detail-imgs position-relative w-100">
+
+              <!--mini-img-->
+
+               <!--mini-img--> 
+
               <div class="zoom-container">
                 <img src="{{ single_product.images.url }}" class="big-img" style="width: 100%;">
               </div>
@@ -102,17 +107,17 @@
 
           <div class="col-md-12 col-sm-12 col-lg-6">
             <div class="product-detail-info position-relative w-100">
-              <div class="product-rate-review d-flex flex-wrap align-items-center">
-                <span class="d-inline-block rate">
-                  <i class="fas fa-star on"></i>
-                  <i class="fas fa-star on"></i>
-                  <i class="fas fa-star on"></i>
-                  <i class="fas fa-star on"></i>
-                  <i class="fas fa-star off"></i>
-                </span>
-                <a class="d-inline-block review-link" href="#">(1 customer review)</a>
+              <p>Rating:{{single_product.averageReview}}</p>
+              <div class="rating-star">
+                <span>
+                  <i class="fa fa-star{% if single_product.averageReview < 0.5 %}-o{% elif single_product.averageReview >= 0.5 and single_product.averageReview < 1 %}-half-o{% endif %}" aria-hidden="true"></i>
+                  <i class="fa fa-star{% if single_product.averageReview < 1.5 %}-o{% elif single_product.averageReview >= 1.5 and single_product.averageReview < 2 %}-half-o{% endif %}" aria-hidden="true"></i>
+                  <i class="fa fa-star{% if single_product.averageReview < 2.5 %}-o{% elif single_product.averageReview >= 2.5 and single_product.averageReview < 3 %}-half-o{% endif %}" aria-hidden="true"></i>
+                  <i class="fa fa-star{% if single_product.averageReview < 3.5 %}-o{% elif single_product.averageReview >= 3.5 and single_product.averageReview < 4 %}-half-o{% endif %}" aria-hidden="true"></i>
+                  <i class="fa fa-star{% if single_product.averageReview < 4.5 %}-o{% elif single_product.averageReview >= 4.5 and single_product.averageReview < 5 %}-half-o{% endif %}" aria-hidden="true"></i>
+                </span> 
               </div>
-
+              <br>
               <h2 class="mb-0">{{ single_product.product_name }}</h2>
               <span class="d-block price">₹ {{ single_product.price }}</span>
 <br>
@@ -269,13 +274,8 @@ document.addEventListener("DOMContentLoaded", function() {
   <div class="product-detail-tab-content w-100">
 
       <h4 class="mb-0">Product Information</h4>
-      <p class="mb-0">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.</p>
-      <ul class="my-3 tab-lst">
-        <li>Nunc nec porttitor turpis. In eu risus enim. In vitae mollis elit.</li>
-        <li>Vivamus finibus vel mauris ut vehicula.</li>
-        <li>Nullam a magna porttitor, dictum risus nec, faucibus sapien.</li>
-      </ul>
-      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim pellentesque felis. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus.</p>
+      <p class="mb-0">{{single_product.description}}.</p>
+      
   <!--content--></div>
 </div>
   <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function() {
       {% if user.is_authenticated %}
       <input type="submit" value="Submit Review" class="btn btn-primary">
       {% else %}
-      <p>You must be logged in to post review. <span>{% url 'login' %}Login Now</span></p>
+      <p>You must be logged in to post review. <a href="{% url 'home' %}"><span>Login Now</span></a></p>
       {% endif %}
     </div>
     <br>
@@ -328,9 +328,104 @@ document.addEventListener("DOMContentLoaded", function() {
     </div>
     {% endif %}
   </form>
-  <br>
+ 
+  <br> <h3>Customer Reviews :)  </h3>
+  <!-- <div class="rating-star">
+    <span>
+      <i class="fa fa-star{% if single_product.averageReview < 0.5 %}-o{% elif single_product.averageReview >= 0.5 and single_product.averageReview < 1 %}-half-o{% endif %}" aria-hidden="true"></i>
+      <i class="fa fa-star{% if single_product.averageReview < 1.5 %}-o{% elif single_product.averageReview >= 1.5 and single_product.averageReview < 2 %}-half-o{% endif %}" aria-hidden="true"></i>
+      <i class="fa fa-star{% if single_product.averageReview < 2.5 %}-o{% elif single_product.averageReview >= 2.5 and single_product.averageReview < 3 %}-half-o{% endif %}" aria-hidden="true"></i>
+      <i class="fa fa-star{% if single_product.averageReview < 3.5 %}-o{% elif single_product.averageReview >= 3.5 and single_product.averageReview < 4 %}-half-o{% endif %}" aria-hidden="true"></i>
+      <i class="fa fa-star{% if single_product.averageReview < 4.5 %}-o{% elif single_product.averageReview >= 4.5 and single_product.averageReview < 5 %}-half-o{% endif %}" aria-hidden="true"></i>
+    </span> 
+  </div> -->
+
+{% for review in reviews %}
+<div class="review-card">
+  <div class="review-header">
+      <div class="review-user">   
+        <i class="fa fa-user" aria-hidden="true"></i> &nbsp;
+          <span class="user-name"> {{ review.user.username}}</span>
+      </div>
+      <span class="user-name">{{ review.subject}}</span>
+  </div>
+
+  <div class="rating-star">
+    <span>
+      <i class="fa fa-star{% if review.rating == 0.5 %}-half-o{% elif review.rating < 1 %}-o{% endif %}" aria-hidden="true"></i>
+      <i class="fa fa-star{% if review.rating == 1.5 %}-half-o{% elif review.rating < 2 %}-o{% endif %}" aria-hidden="true"></i>
+      <i class="fa fa-star{% if review.rating == 2.5 %}-half-o{% elif review.rating < 3 %}-o{% endif %}" aria-hidden="true"></i>
+      <i class="fa fa-star{% if review.rating == 3.5 %}-half-o{% elif review.rating < 4 %}-o{% endif %}" aria-hidden="true"></i>
+      <i class="fa fa-star{% if review.rating == 4.5 %}-half-o{% elif review.rating < 5 %}-o{% endif %}" aria-hidden="true"></i>
+    </span>
+  </div>
+    
+    <h6>"{{ review.review }}"</h6>
+  
+  <div class="review-footer">
+      <span class="review-date">{{ review.updated_at|date:"F j, Y" }}</span>
+  </div>
+</div>
+ {% endfor %}
+<style>
+  .review-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.review-user {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.user-name {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.review-rating {
+    display: flex;
+}
+
+.star {
+    color: #FFD700; /* Gold color */
+    margin-left: 2px;
+}
+
+.star.empty {
+    color: #ddd;
+}
+
+.review-body {
+    margin-bottom: 8px;
+}
+
+.review-footer {
+    text-align: right;
+    font-size: 0.9em;
+    color: #888;
+}
+
+</style>
   <header class="section-heading">
-    <h3>Customer Reviews :)</h3>
+   
 
   </header>
 

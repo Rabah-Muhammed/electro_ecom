@@ -60,6 +60,7 @@
 #     return redirect('login')
 
 import random
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login, logout as logout_page
@@ -72,6 +73,8 @@ from .models import OTP
 from .forms import RegisterForm, OTPForm
 from django.views.decorators.cache import never_cache
 from django.views.decorators.cache import cache_control
+
+from .models import User
 
 
 def generate_otp():
@@ -120,16 +123,18 @@ def register(request):
                 return render(request, 'layouts/register.html', {'form': form, 'error_message': 'Email is already registered'})
 
             else:
-                user = User(username=uname, email=email)
+               
+                user = User(username=uname, email=email, is_active=False)
                 user.set_password(pass1)
-                user.is_active = False  # Deactivate account till it is confirmed
                 user.save()
 
                 otp = generate_otp()
                 OTP.objects.create(user=user, otp=otp)
+
                 send_otp_via_email(email, otp)
 
                 request.session['user_id'] = user.id
+
                 return redirect('verify_otp')
 
     else:
@@ -137,9 +142,15 @@ def register(request):
 
     return render(request, 'layouts/register.html', {'form': form})
 
+
 def verify_otp(request):
     user_id = request.session.get('user_id')
     if not user_id:
+        return redirect('register')
+
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
         return redirect('register')
 
     if request.method == "POST":
@@ -147,7 +158,6 @@ def verify_otp(request):
         if form.is_valid():
             otp = form.cleaned_data['otp']
             try:
-                user = User.objects.get(id=user_id)
                 user_otp = OTP.objects.get(user=user, otp=otp)
                 if user_otp.is_valid():
                     user.is_active = True
@@ -156,14 +166,14 @@ def verify_otp(request):
                     del request.session['user_id']
                     return redirect('login')
                 else:
-                    return render(request, 'layouts/verify_otp.html', {'form': form, 'error_message': 'OTP is expired'})
+                    return render(request, 'layouts/verify_otp.html', {'form': form, 'error_message': 'OTP is expired or invalid'})
             except OTP.DoesNotExist:
-                return render(request, 'layouts/verify_otp.html', {'form': form, 'error_message': 'Invalid OTP'})
-
+                return render(request, 'layouts/verify_otp.html', {'form': form, 'error_message': 'OTP is expired or invalid'})
     else:
         form = OTPForm()
 
     return render(request, 'layouts/verify_otp.html', {'form': form})
+
 
 def resend_otp(request):
     user_id = request.session.get('user_id')
@@ -177,25 +187,31 @@ def resend_otp(request):
 
     return redirect('verify_otp')
 
+
 @cache_control(no_cache=True,must_revalidate=True,no_store=True)  
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
-        pass1 = request.POST.get('pass')
-        user = authenticate(request, username=username, password=pass1)
+        password = request.POST.get('pass')
+        user = authenticate(request, username=username, password=password)
 
         if user is not None:
-            auth_login(request, user)
-            return redirect('home')
+            if user.is_active:
+                auth_login(request, user)
+                return redirect('home')
+            else:
+                # User is not active, show error message
+                messages.error(request, 'Your account is not active. Please contact support.')
+                return render(request, 'layouts/login.html')
         else:
-            return render(request, 'layouts/login.html', {'error_message': 'You need to create an account!!!'})
-    return render(request, 'layouts/login.html')
+            # Authentication failed, show error message
+            messages.error(request, 'Invalid username or password. Please try again.')
+            return render(request, 'layouts/login.html')
     
-
+    return render(request, 'layouts/login.html')
 
 @cache_control(no_cache=True,must_revalidate=True,no_store=True)  
-@login_required(login_url='login')
 def logout(request):
     logout_page(request)
-    return redirect('login')
+    return redirect('/')
 

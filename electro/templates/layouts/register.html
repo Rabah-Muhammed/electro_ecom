@@ -23,7 +23,7 @@
         h2 {
             text-align: center;
             margin-bottom: 20px;
-            color: #000000; /* Green color for the heading */
+            color: #000000; /* Black color for the heading */
         }
         form {
             display: flex;
@@ -67,6 +67,18 @@
         .form-field {
             margin-bottom: 15px; /* Increased spacing between fields */
         }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .login-link a {
+            color: #33a7c4;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
         @media (max-width: 600px) {
             /* Adjustments for smaller screens */
             .container {
@@ -104,6 +116,9 @@
             {% endif %}
             <button type="submit">Register</button>
         </form>
+        <div class="login-link">
+            <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+        </div>
     </div>
 
     <script>

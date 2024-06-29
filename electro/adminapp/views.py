@@ -9,9 +9,23 @@ from django.contrib.auth.models import User
 from .models import Profile
 from category.models import Category
 from product.models import Product
+from django.views.decorators.cache import cache_control
+from django.contrib.auth import get_user_model
+from django.utils.text import slugify
 
+User = get_user_model()
 
 logger = logging.getLogger(__name__)
+
+# Decorator to check if the user is a superuser
+
+def admin_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_superuser:
+            return redirect('alogin')  
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
 
 def adminlogin(request):
     error_message = None 
@@ -36,7 +50,7 @@ def adminlogin(request):
     
     return render(request, 'adminlogin.html', {'error_message': error_message})
 
-@login_required(login_url='alogin')
+
 def ahome(request):
     return render(request, 'ahome.html')
 
@@ -44,27 +58,38 @@ def adminlogout(request):
     logout(request)
     return redirect('alogin')
 
-def userlist(request):
-    users = User.objects.all() 
+
+
+@cache_control(no_cache=True,must_revalidate=True,no_store=True)
+@admin_required
+def user_list(request):
+    users = User.objects.filter(is_superuser=False).order_by('-id')
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+        new_status = request.POST.get('new_status')
+        user = User.objects.get(id=user_id)
+        user.status = new_status
+        user.save()
+        return redirect('userlist')  # Redirect to the user list page
     return render(request, 'userlist.html', {'users': users})
 
-def blockuser(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
-    if request.method == 'POST':
-        profile = Profile.objects.get_or_create(user=user)[0]
-        profile.is_blocked = True
-        profile.save()
-       
-    return redirect('userlist')
 
-def unblockuser(request, user_id):
-    user = get_object_or_404(User, pk=user_id)
+# function for user list update block and unblock
+
+
+@cache_control(no_cache=True,must_revalidate=True,no_store=True)
+@admin_required
+def update_status(request, user_id):
+    user = get_object_or_404(User, id=user_id)
     if request.method == 'POST':
-        profile = Profile.objects.get_or_create(user=user)[0]
-        profile.is_blocked = False
-        profile.save()
-       
-    return redirect('userlist')
+        new_status = request.POST.get('status')
+        if new_status == 'blocked':
+            user.is_active = False
+        elif new_status == 'active':
+            user.is_active = True
+        user.save()
+        return redirect('userlist')  # Redirect to the user list page 
+    return render(request, 'userlist.html', {'users': User.objects.all()})
 
 
 def categorylist(request):

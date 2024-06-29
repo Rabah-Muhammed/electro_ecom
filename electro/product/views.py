@@ -1,5 +1,5 @@
 
-# from pyexpat.errors import messages
+#  
 from django.shortcuts import redirect, render,get_object_or_404
 from category.models import Category
 from .forms import ReviewForm
@@ -7,6 +7,7 @@ from product.models import Product, ReviewRatingz
 from django.contrib import messages
 
 # Create your views here.
+
 
 def store(request,category_slug=None):
     categories = None
@@ -28,19 +29,24 @@ def store(request,category_slug=None):
 
     return render(request, 'layouts/products.html',context)
 
-
 def product_detail(request,category_slug,product_slug):
     try:
         single_product = Product.objects.get(category__slug=category_slug,slug=product_slug)
         related_products = Product.objects.filter(category__slug=category_slug).exclude(slug=product_slug)
+       
     except Exception as e:
         raise e
     
-    context = {
-        'single_product' : single_product,
-        'products':related_products
-    }
+    #get the reviews
+    reviews = ReviewRatingz.objects.filter(product_id=single_product.id,status=True)
 
+
+    context = {
+        'single_product': single_product,
+        'products': related_products,
+        'reviews': reviews,
+       
+    }
     return render(request,'layouts/product-detail.html',context)
 
 def submit_review(request,product_id):
