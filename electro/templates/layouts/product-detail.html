@@ -96,8 +96,25 @@
             <div class="product-detail-imgs position-relative w-100">
 
               <!--mini-img-->
+          
 
-               <!--mini-img--> 
+              {% for image in product_images %}      
+              <ul class="product-detail-img-nav list-unstyled mb-0">
+
+              <li style="display:block;">
+              <div class="product-detail-mini-img overflow-hidden active">
+
+              <img class="img-fluid w-100" src="{{ image.image.url }}">
+              <br>
+              <img class="img-fluid w-100" src="{{ image.image.url }}">
+              <br>
+              <img class="img-fluid w-100" src="{{ image.image.url }}">
+              </div>
+              </li>
+              </ul>
+              {% endfor %}
+
+        
 
               <div class="zoom-container">
                 <img src="{{ single_product.images.url }}" class="big-img" style="width: 100%;">
@@ -214,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function() {
               </div>
           </div>
     <div class="row">
-        {% for product in  products %} 
+        {% for product in  related_products %} 
         
         <div class="col-lg-3 col-md-6 col-sm-12">
             <div class="block-product">

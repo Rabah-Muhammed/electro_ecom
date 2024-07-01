@@ -5,13 +5,15 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 import logging
 from django.shortcuts import render
-from django.contrib.auth.models import User 
+from django.contrib.auth.models import User
 from .models import Profile
 from category.models import Category
 from product.models import Product
 from django.views.decorators.cache import cache_control
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 User = get_user_model()
 
@@ -163,8 +165,22 @@ def deletecategory(request, category_id, soft_delete=True):
     return render(request, 'deletecategory.html', {'category': category})
 
 def productlist(request):
-    products = Product.objects.all()
-    return render(request, 'productlist.html', {'products': products})
+    products = Product.objects.all().order_by('id')
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page = request.GET.get('page')
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        products = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        products = paginator.page(paginator.num_pages)
+    
+    context = {
+        'products': products,
+    }
+    return render(request, 'productlist.html', context)
 
 def addproduct(request):
     if request.method == 'POST':
@@ -235,3 +251,4 @@ def deleteproduct(request, product_id):
         return redirect('productlist')
     
     return render(request, 'deleteproduct.html', {'product': product})
+

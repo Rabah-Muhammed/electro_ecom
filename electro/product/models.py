@@ -25,7 +25,6 @@ class Product(models.Model):
         if reviews['average'] is not None:
             avg = float(reviews['average'])
         return avg
-
     
 class ReviewRatingz(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE)

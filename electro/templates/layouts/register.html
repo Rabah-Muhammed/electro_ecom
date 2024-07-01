@@ -1,3 +1,4 @@
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,95 +6,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Registration</title>
     <style>
-        /* Basic CSS for form layout */
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
-            padding: 20px;
-            margin: 0; /* Reset default margin */
+            padding: 10px;
+            margin: 0;
         }
         .container {
-            max-width: 400px;
+            max-width: 300px;
             margin: 0 auto;
             background-color: #fff;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h2 {
             text-align: center;
-            margin-bottom: 20px;
-            color: #000000; /* Black color for the heading */
+            margin-bottom: 15px;
+            color: #000;
+            font-size: 20px;
         }
         form {
             display: flex;
             flex-direction: column;
         }
         label {
-            margin-bottom: 8px;
-            font-weight: bold; /* Make labels bold */
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
         }
         input[type="text"], input[type="email"], input[type="password"] {
-            margin-bottom: 10px;
-            padding: 12px; /* Slightly increased padding */
-            font-size: 16px;
+            margin-bottom: 8px;
+            padding: 10px;
+            font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
-            width: 100%; /* Full-width input fields */
+            width: 93%;
         }
         button {
             background-color: #33a7c4;
             color: white;
             border: none;
-            padding: 14px 20px; /* Slightly increased padding */
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
+            padding: 10px 15px;
+            font-size: 14px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            width: 100%; /* Full-width button */
-            margin-top: 10px; /* Spacing from inputs */
+            width: 100%;
+            margin-top: 8px;
         }
         button:hover {
             background-color: #313631;
         }
         .error {
             color: red;
-            margin-top: 5px; /* Reduced margin for error messages */
+            margin-top: 5px;
+            font-size: 12px;
         }
         .form-field {
-            margin-bottom: 15px; /* Increased spacing between fields */
+            margin-bottom: 10px;
         }
         .login-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         .login-link a {
             color: #33a7c4;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 12px;
         }
         .login-link a:hover {
             text-decoration: underline;
         }
+        .social-login {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .social-login button {
+            background-color: #db4437;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .social-login button:hover {
+            background-color: #a33d2e;
+        }
         @media (max-width: 600px) {
-            /* Adjustments for smaller screens */
             .container {
-                padding: 15px;
+                padding: 10px;
             }
             input[type="text"], input[type="email"], input[type="password"], button {
-                padding: 10px;
-                font-size: 14px;
+                padding: 8px;
+                font-size: 12px;
             }
         }
     </style>
 </head>
+<br>
 <body>
-    <br>
-    <br>
     <div class="container">
         <h2>User Registration</h2>
         <form id="registrationForm" method="post" onsubmit="return validateForm()">
@@ -116,6 +132,12 @@
             {% endif %}
             <button type="submit">Register</button>
         </form>
+        <div class="social-login">
+            <p>Or register with:</p>
+            <a href="{% provider_login_url 'google' %}">
+                <button type="button">Google</button>
+            </a>
+        </div>
         <div class="login-link">
             <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
         </div>
@@ -127,12 +149,10 @@
             var confirmPassword = document.getElementById('id_password2').value;
             var errors = [];
 
-            // Password length check
             if (password.length < 8) {
                 errors.push("Password must be at least 8 characters long.");
             }
 
-            // Regex checks for uppercase letter and digit
             var upperCaseRegex = /[A-Z]/;
             var digitRegex = /[0-9]/;
 
@@ -144,7 +164,6 @@
                 errors.push("Password must contain at least one digit.");
             }
 
-            // Display errors if any
             if (errors.length > 0) {
                 var errorList = document.createElement('ul');
                 errorList.classList.add('errorlist');
@@ -154,21 +173,17 @@
                     errorList.appendChild(errorItem);
                 });
 
-                // Remove previous error list if exists
                 var existingErrorList = document.querySelector('.errorlist');
                 if (existingErrorList) {
                     existingErrorList.remove();
                 }
 
-                // Append new error list before the Register button
                 var form = document.getElementById('registrationForm');
                 form.insertBefore(errorList, form.querySelector('button'));
                 
-                // Prevent form submission
                 return false;
             }
 
-            // If no errors, proceed with form submission
             return true;
         }
     </script>

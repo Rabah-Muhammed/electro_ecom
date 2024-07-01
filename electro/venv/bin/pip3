@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/home/rabah/Desktop/ELECTRO PROJECT/electro/venv/bin/python3" "$0" "$@"
+'''exec' "/home/rabah/Desktop/ELECTRO PROJECT/electro/venv/bin/python" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
