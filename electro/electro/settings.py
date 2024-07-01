@@ -173,10 +173,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL ='home'
 ACCOUNT_LOGOUT_REDIRECT_URL ='login'
 
-#client id
-# 167821182527-7s8tesvguilbr9l5ita53ach4cl98cs6.apps.googleusercontent.com
-# client secret
-# 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
+
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
