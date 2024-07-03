@@ -1,8 +1,6 @@
-
 {% extends 'ahome.html' %}
 
 {% load static %}
-
 
 {% block body %}
 <!DOCTYPE html>
@@ -61,7 +59,6 @@
         .table.table.table-bordered{
             color: white;
         }
-     
     </style>
 </head>
 <body>
@@ -75,12 +72,14 @@
         {% if messages %}
             <div class="alert alert-dismissible">
                 {% for message in messages %}
-                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-                        {{ message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
+                    {% if "login" not in message.tags %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         {% endif %}
@@ -209,7 +208,7 @@
                                 <label for="cat_image">Category Image:</label>
                                 <input type="file" class="form-control-file" name="cat_image" id="cat_image">
                             </div>
-                            <button type="submit" class="btn btn-primary btn-block">Save</button>
+                            <button type="submit" class="btn btn-primary btn-block">Add</button>
                         </form>
                     </div>
                 </div>
@@ -217,38 +216,9 @@
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Function to move focus to next field on Enter key press
-            function moveFocusToNextField(currentElement, fields) {
-                for (var i = 0; i < fields.length; i++) {
-                    if (fields[i] === currentElement) {
-                        if (i + 1 < fields.length) {
-                            fields[i + 1].focus();
-                            return;
-                        }
-                    }
-                }
-            }
-
-            // Event listeners for input fields
-            var inputs = document.querySelectorAll("#addCategoryForm input, #addCategoryForm textarea");
-            for (var i = 0; i < inputs.length; i++) {
-                inputs[i].addEventListener("keypress", function(e) {
-                    if (e.key === "Enter") {
-                        e.preventDefault();
-                        moveFocusToNextField(this, inputs);
-                    }
-                });
-            }
-        });
-    </script>
 </body>
 </html>
-
-
-{% endblock body %}
+{% endblock %}

@@ -3,6 +3,16 @@
 {% load static %}
 
 {% block body %}
+<!-- Slick Slider CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css" />
+
+<!-- Slick Slider JavaScript -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+
+
+
 <div class="res-header w-100">
   <div class="res-topbar w-100">
     <div class="container">
@@ -67,6 +77,7 @@
   }
 </script>
 
+
 <div class="border-top" style="opacity: .3;"></div>
 <div class="container">
   <div class="breadcrumbs row align-items-center justify-content-between d-flex">
@@ -95,29 +106,40 @@
           <div class="col-md-12 col-sm-12 col-lg-6">
             <div class="product-detail-imgs position-relative w-100">
 
-              <!--mini-img-->
-          
+               <!-- mini image -->
 
-              {% for image in product_images %}      
               <ul class="product-detail-img-nav list-unstyled mb-0">
 
               <li style="display:block;">
               <div class="product-detail-mini-img overflow-hidden active">
-
-              <img class="img-fluid w-100" src="{{ image.image.url }}">
               <br>
-              <img class="img-fluid w-100" src="{{ image.image.url }}">
               <br>
-              <img class="img-fluid w-100" src="{{ image.image.url }}">
+              <br>
+              <img class="img-fluid w-100" src="{{ single_product.images.url }}">
+              <br>
+              <br>
+              <img class="img-fluid w-100" src="{{ single_product.image1.url }}">
+              <br>
+              <br>
+              <img class="img-fluid w-100" src="{{ single_product.image2.url }}">
               </div>
               </li>
               </ul>
-              {% endfor %}
+            
+              <!-- mini image -->
 
-        
 
-              <div class="zoom-container">
-                <img src="{{ single_product.images.url }}" class="big-img" style="width: 100%;">
+              <!-- Slick Slider Container -->
+              <div class="product-slider">
+                <div class="big-img-container">
+                  <img src="{{ single_product.images_thumbnail.url }}" class="big-img">
+                </div>
+                <div class="big-img-container">
+                  <img src="{{ single_product.image1_thumbnail.url }}" class="big-img">
+                </div>
+                <div class="big-img-container">
+                  <img src="{{ single_product.image2_thumbnail.url }}" class="big-img">
+                </div>
               </div>
             </div>
           </div>
@@ -132,12 +154,12 @@
                   <i class="fa fa-star{% if single_product.averageReview < 2.5 %}-o{% elif single_product.averageReview >= 2.5 and single_product.averageReview < 3 %}-half-o{% endif %}" aria-hidden="true"></i>
                   <i class="fa fa-star{% if single_product.averageReview < 3.5 %}-o{% elif single_product.averageReview >= 3.5 and single_product.averageReview < 4 %}-half-o{% endif %}" aria-hidden="true"></i>
                   <i class="fa fa-star{% if single_product.averageReview < 4.5 %}-o{% elif single_product.averageReview >= 4.5 and single_product.averageReview < 5 %}-half-o{% endif %}" aria-hidden="true"></i>
-                </span> 
+                </span>
               </div>
               <br>
               <h2 class="mb-0">{{ single_product.product_name }}</h2>
               <span class="d-block price">₹ {{ single_product.price }}</span>
-<br>
+              <br>
               <h6>Stock: {{single_product.stock}}</h6>
 
               <ul class="product-stock-info list-unstyled mb-0">
@@ -149,27 +171,27 @@
                 <li>Sales 30% Off Use Code: MOTIVE30</li>
               </ul>
               {% endif %}
-              
+
               <p class="mb-0">{{ single_product.description }}</p>
-<br>
-          {% if single_product.stock <= 0 %}
-          <h5>Out of Stock</h5>
-          {% else %}         
-          <div class="product-bottom d-flex flex-wrap align-items-center w-100">
-            <div class="product-quanty">
-              <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
-                <span class="input-group-btn input-group-prepend">
-                  <button class="btn btn-primary bootstrap-touchspin-down" type="button">-</button>
-                </span>
-                <input type="number" class="qty form-control" value="01">
-                <span class="input-group-btn input-group-append">
-                  <button class="btn btn-primary bootstrap-touchspin-up" type="button">+</button>
-                </span>
+              <br>
+              {% if single_product.stock <= 0 %}
+              <h5>Out of Stock</h5>
+              {% else %}
+              <div class="product-bottom d-flex flex-wrap align-items-center w-100">
+                <div class="product-quanty">
+                  <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
+                    <span class="input-group-btn input-group-prepend">
+                      <button class="btn btn-primary bootstrap-touchspin-down" type="button">-</button>
+                    </span>
+                    <input type="number" class="qty form-control" value="01">
+                    <span class="input-group-btn input-group-append">
+                      <button class="btn btn-primary bootstrap-touchspin-up" type="button">+</button>
+                    </span>
+                  </div>
+                </div>
+                <button class="theme-btn bg-color1" type="submit">Add to Cart</button>
               </div>
-            </div>
-            <button class="theme-btn bg-color1" type="submit">Add to Cart</button>
-          </div>
-          {% endif %}
+              {% endif %}
 
               <div class="wish my-4">
                 <a class="heart-btn d-inline-block rounded-circle" href="wishlist.html" title=""><i class="fi-rr-heart"></i>Add to Wishlist</a>
@@ -184,43 +206,39 @@
     </div>
   </div>
 </section>
-
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.product-slider').slick({
+      dots: true,
+      infinite: true,
+      speed: 500,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      arrows: true,
+      autoplay: false,
+      autoplaySpeed: 2000,
+    });
+  });
+</script>
 <style>
-.zoom-container {
-  position: relative;
-  overflow: hidden;
-}
+  /* Zoom effect on hover */
+  .big-img-container {
+    position: relative;
+    overflow: hidden;
+  }
 
-.big-img {
-  transition: transform 0.5s ease;
-  width: 100%;
-}
+  .big-img-container:hover .big-img {
+    transform: scale(1.2); /* Adjust the scale factor as needed */
+    transition: transform 0.3s ease; /* Smooth transition */
+  }
 
-.zoom-container:hover .big-img {
-  transform: scale(1.5); /* Adjust the scale as needed */
-}
+  .big-img {
+    display: block;
+    width: 100%;
+    transition: transform 0.3s ease;
+  }
 </style>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const zoomContainer = document.querySelector('.zoom-container');
-  const bigImg = document.querySelector('.big-img');
-
-  zoomContainer.addEventListener('mousemove', function(e) {
-    const { left, top, width, height } = zoomContainer.getBoundingClientRect();
-    const x = ((e.pageX - left) / width) * 100;
-    const y = ((e.pageY - top) / height) * 100;
-
-    bigImg.style.transformOrigin = `${x}% ${y}%`;
-  });
-
-  zoomContainer.addEventListener('mouseleave', function() {
-    bigImg.style.transformOrigin = 'center center';
-  });
-});
-</script>
-
-</section>
 
 <section>
   <div class="w-100 img-set" style="margin-top:60px;">

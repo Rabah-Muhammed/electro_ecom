@@ -6,6 +6,7 @@ from django.http import HttpResponse
 import logging
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from product.forms import ProductForm
 from .models import Profile
 from category.models import Category
 from product.models import Product
@@ -182,64 +183,36 @@ def productlist(request):
     }
     return render(request, 'productlist.html', context)
 
+@login_required
 def addproduct(request):
     if request.method == 'POST':
-        product_name = request.POST.get('product_name')
-        description = request.POST.get('description')
-        price = request.POST.get('price')
-        image = request.FILES.get('image')
-        stock = request.POST.get('stock')
-        category_id = request.POST.get('category')
-        is_available = request.POST.get('is_available', False)
-        
-        # Ensure category exists
-        category = get_object_or_404(Category, id=category_id)
-        
-        Product.objects.create(
-            product_name=product_name,
-            description=description,
-            price=price,
-            images=image,
-            stock=stock,
-            category=category,
-            is_available=is_available
-        )
-        messages.success(request, 'Product added successfully.')
-        return redirect('productlist')
-    
-    return render(request, 'addproduct.html')
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Product added successfully.')
+            return redirect('productlist')
+        else:
+            messages.error(request, 'Error adding product. Please correct the form errors.')
+    else:
+        form = ProductForm()
+
+    return render(request, 'addproduct.html', {'form': form})
 
 def editproduct(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
-        product.product_name = request.POST.get('product_name')
-        product.description = request.POST.get('description')
-        product.price = request.POST.get('price')
-        product.stock = request.POST.get('stock')
-        product.category_id = request.POST.get('category')
-        
-        # Handling is_available checkbox
-        is_available = request.POST.get('is_available', False)
-        if is_available == 'on':
-            product.is_available = True
-        else:
-            product.is_available = False
-        
-        image = request.FILES.get('image')
-        if image:
-            product.images = image
-        
-        try:
-            
-            product.save()
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
             messages.success(request, 'Product updated successfully.')
             return redirect('productlist')
-        except ValueError as e:
-            messages.error(request, f'Error updating product: {str(e)}')
-    
-    categories = Category.objects.all()  # Fetch all categories for dropdown
-    return render(request, 'editproduct.html', {'product': product, 'categories': categories})
+        else:
+            messages.error(request, 'Error updating product. Please correct the form errors.')
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'editproduct.html', {'form': form, 'product': product})
 
 def deleteproduct(request, product_id):
     product = get_object_or_404(Product, id=product_id)

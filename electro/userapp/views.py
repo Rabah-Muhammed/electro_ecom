@@ -193,21 +193,28 @@ def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('pass')
-        user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            if user.is_active:
-                auth_login(request, user)
-                return redirect('home')
-            else:
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            user = None
+
+        if user:
+            if not user.is_active:
                 # User is not active, show error message
-                messages.error(request, 'Your account is not active. Please contact support.')
-                return render(request, 'layouts/login.html')
+                messages.error(request, 'Your account is blocked. Please contact support.')
+            else:
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    auth_login(request, user)
+                    return redirect('home')
+                else:
+                    # Authentication failed, show error message
+                    messages.error(request, 'Invalid username or password. Please try again.')
         else:
-            # Authentication failed, show error message
+            # User does not exist, show error message
             messages.error(request, 'Invalid username or password. Please try again.')
-            return render(request, 'layouts/login.html')
-    
+
     return render(request, 'layouts/login.html')
 
 @cache_control(no_cache=True,must_revalidate=True,no_store=True)  

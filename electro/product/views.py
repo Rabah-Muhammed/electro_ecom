@@ -1,5 +1,5 @@
 
-#  
+from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import redirect, render,get_object_or_404
 from category.models import Category
@@ -10,26 +10,27 @@ from django.contrib import messages
 
 # Create your views here.
 
-
-def store(request,category_slug=None):
+def store(request, category_slug=None):
     categories = None
     products = None
 
-    if category_slug != None:
-        categories = get_object_or_404(Category,slug=category_slug) 
-        products = Product.objects.filter(category=categories, is_available=True)
-        product_count = products.count()
+    if category_slug:
+        categories = get_object_or_404(Category, slug=category_slug)
+        products = Product.objects.filter(category=categories, is_available=True).order_by('-created_date')
     else:
-
         products = Product.objects.all().filter(is_available=True).order_by('-created_date')
-        product_count = products.count()
+
+    # Pagination
+    paginator = Paginator(products, 12)  # Show 12 products per page
+    page_number = request.GET.get('page')
+    paginated_products = paginator.get_page(page_number)
 
     context = {
-        'products':products,
-        'product_count':product_count,
+        'products': paginated_products,
+        'product_count': products.count(),
     }
 
-    return render(request, 'layouts/products.html',context)
+    return render(request, 'layouts/products.html', context)
 
 def product_detail(request, category_slug, product_slug):
     try:
@@ -49,6 +50,8 @@ def product_detail(request, category_slug, product_slug):
         
     }
     return render(request, 'layouts/product-detail.html', context)
+
+
 
 def submit_review(request,product_id):
     url = request.META.get('HTTP_REFERER')
