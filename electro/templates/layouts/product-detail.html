@@ -108,7 +108,7 @@
 
                <!-- mini image -->
 
-              <ul class="product-detail-img-nav list-unstyled mb-0">
+              <!-- <ul class="product-detail-img-nav list-unstyled mb-0">
 
               <li style="display:block;">
               <div class="product-detail-mini-img overflow-hidden active">
@@ -125,9 +125,8 @@
               </div>
               </li>
               </ul>
-            
+             -->
               <!-- mini image -->
-
 
               <!-- Slick Slider Container -->
               <div class="product-slider">
@@ -143,6 +142,7 @@
               </div>
             </div>
           </div>
+          
 
           <div class="col-md-12 col-sm-12 col-lg-6">
             <div class="product-detail-info position-relative w-100">
@@ -156,11 +156,13 @@
                   <i class="fa fa-star{% if single_product.averageReview < 4.5 %}-o{% elif single_product.averageReview >= 4.5 and single_product.averageReview < 5 %}-half-o{% endif %}" aria-hidden="true"></i>
                 </span>
               </div>
+ 
               <br>
               <h2 class="mb-0">{{ single_product.product_name }}</h2>
               <span class="d-block price">₹ {{ single_product.price }}</span>
               <br>
               <h6>Stock: {{single_product.stock}}</h6>
+
 
               <ul class="product-stock-info list-unstyled mb-0">
                 {% if single_product.stock <= 0 %}
@@ -173,25 +175,25 @@
               {% endif %}
 
               <p class="mb-0">{{ single_product.description }}</p>
+               <br>
+          
               <br>
-              {% if single_product.stock <= 0 %}
+            {% if single_product.stock <= 0 %}
               <h5>Out of Stock</h5>
+              {% else %}
+              {% if in_cart %}
+              <a href="#"   class="btn btn-success" type="submit" >Added to Cart <i class="fas fa-check" ></i> </a>
+              <a href="{% url 'cart' %}"   class="btn btn-dark" type="submit" >View Cart <i class="fas fa-eye" ></i> </a>
               {% else %}
               <div class="product-bottom d-flex flex-wrap align-items-center w-100">
                 <div class="product-quanty">
                   <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
-                    <span class="input-group-btn input-group-prepend">
-                      <button class="btn btn-primary bootstrap-touchspin-down" type="button">-</button>
-                    </span>
-                    <input type="number" class="qty form-control" value="01">
-                    <span class="input-group-btn input-group-append">
-                      <button class="btn btn-primary bootstrap-touchspin-up" type="button">+</button>
-                    </span>
                   </div>
                 </div>
-                <button class="theme-btn bg-color1" type="submit">Add to Cart</button>
+                <a href="{% url 'add_cart' single_product.id %}"   class="btn btn-dark" type="submit" >Add to Cart</a>
               </div>
               {% endif %}
+            {% endif %}
 
               <div class="wish my-4">
                 <a class="heart-btn d-inline-block rounded-circle" href="wishlist.html" title=""><i class="fi-rr-heart"></i>Add to Wishlist</a>
@@ -201,6 +203,7 @@
               </div>
             </div>
           </div>
+ 
         </div>
       </div>
     </div>
@@ -473,8 +476,6 @@
 <!--container--></div>
 <!--w-100--></div>
 </section>
-
-
 
 {% endblock body %}
 

@@ -198,8 +198,8 @@
                 <div class="block-product">
                     <div class="product-thumb position-relative">
                         <a href="#"><img src="{{ product.images.url }}"></a>
-                        <a href="#" class="ad-cart position-absolute text-center">
-                            <span>Add to Cart</span>
+                        <a href="{{product.get_url}}" class="ad-cart position-absolute text-center">
+                            <span>View Details</span>
                         </a>
                         <div class="product-btns position-absolute">
                           <a class="wishlist-btn" href="wishlist.html" style="transition-delay:0ms;">
@@ -251,8 +251,8 @@
                 <div class="block-product">
                     <div class="product-thumb position-relative">
                         <a href="#"><img src="{{ product.images.url }}"></a>
-                        <a href="#" class="ad-cart position-absolute text-center">
-                            <span>Add to Cart</span>
+                        <a href="{{product.get_url}}" class="ad-cart position-absolute text-center">
+                            <span>View Details</span>
                         </a>
                         <div class="product-btns position-absolute">
                           <a class="wishlist-btn" href="wishlist.html" style="transition-delay:0ms;">

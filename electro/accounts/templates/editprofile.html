@@ -1,0 +1,226 @@
+{% extends 'my-account.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+
+{% block extracss %}
+<style>
+    /* Container and padding */
+    .myaccount-content {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    /* Form input items */
+    .single-input-item {
+        margin-bottom: 20px;
+    }
+
+    /* Form labels */
+    .single-input-item label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    /* Form inputs and error messages */
+    .single-input-item input[type="text"],
+    .single-input-item input[type="email"],
+    .single-input-item input[type="password"],
+    .single-input-item textarea,
+    .single-input-item select {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+    }
+
+    /* Error messages */
+    .text-danger {
+        margin-top: 5px;
+        font-size: 14px;
+    }
+
+    /* Submit button */
+    .single-input-item .btn-primary {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .single-input-item .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    /* Current image styling */
+    .single-input-item a {
+        color: #007bff;
+        text-decoration: none;
+        margin-top: 5px;
+        display: block;
+    }
+</style>
+{% endblock %}
+
+<div class="myaccount-content">
+    <h3>Edit Profile</h3>
+    <div class="account-details-form">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Display success message if any -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- UserForm fields -->
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="single-input-item">
+                        {{ user_form.first_name.label_tag }}
+                        {{ user_form.first_name }}
+                        {% if user_form.first_name.errors %}
+                            <div class="text-danger">
+                                {% for error in user_form.first_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="single-input-item">
+                        {{ user_form.last_name.label_tag }}
+                        {{ user_form.last_name }}
+                        {% if user_form.last_name.errors %}
+                            <div class="text-danger">
+                                {% for error in user_form.last_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- UserProfileForm fields -->
+            <div class="single-input-item">
+                {{ profile_form.phone_number.label_tag }}
+                {{ profile_form.phone_number }}
+                {% if profile_form.phone_number.errors %}
+                    <div class="text-danger">
+                        {% for error in profile_form.phone_number.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="single-input-item">
+                {{ profile_form.address_line_1.label_tag }}
+                {{ profile_form.address_line_1 }}
+                {% if profile_form.address_line_1.errors %}
+                    <div class="text-danger">
+                        {% for error in profile_form.address_line_1.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Include other fields like address_line_2, city, state, country, and profile_picture similarly -->
+            <div class="single-input-item">
+                {{ profile_form.address_line_2.label_tag }}
+                {{ profile_form.address_line_2 }}
+                {% if profile_form.address_line_2.errors %}
+                    <div class="text-danger">
+                        {% for error in profile_form.address_line_2.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="single-input-item">
+                        {{ profile_form.city.label_tag }}
+                        {{ profile_form.city }}
+                        {% if profile_form.city.errors %}
+                            <div class="text-danger">
+                                {% for error in profile_form.city.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="single-input-item">
+                        {{ profile_form.state.label_tag }}
+                        {{ profile_form.state }}
+                        {% if profile_form.state.errors %}
+                            <div class="text-danger">
+                                {% for error in profile_form.state.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="single-input-item">
+                {{ profile_form.country.label_tag }}
+                {{ profile_form.country }}
+                {% if profile_form.country.errors %}
+                    <div class="text-danger">
+                        {% for error in profile_form.country.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="single-input-item">
+                {{ profile_form.profile_picture.label_tag }}
+                {% if profile_form.instance.profile_picture %}
+                    <br>
+                    Current Image:
+                    <a href="{{ profile_form.instance.profile_picture.url }}" target="_blank">{{ profile_form.instance.profile_picture.name }}</a>
+                    <br><br>
+                {% endif %}
+                {{ profile_form.profile_picture }}
+                {% if profile_form.profile_picture.errors %}
+                    <div class="text-danger">
+                        {% for error in profile_form.profile_picture.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Submit button -->
+            <div class="single-input-item">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}

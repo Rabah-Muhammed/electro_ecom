@@ -48,11 +48,16 @@ INSTALLED_APPS = [
     'product',
     'adminapp',
     'imagekit',
+    'accounts',
+    'carts',
     
    
     
     
 ]
+
+
+
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -91,6 +96,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'category.context_processors.menu_links',
                 'django.template.context_processors.request',
+                'carts.context_processors.counter',
             ],
         },
     },

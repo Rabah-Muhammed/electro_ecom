@@ -1,0 +1,179 @@
+{% extends 'my-account.html' %}
+
+{% load static %}
+{% block title %}Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 20px;
+        flex-shrink: 0;
+        border: 4px solid #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-picture img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%; /* Ensures the image is displayed as a circle */
+    }
+
+    .profile-details {
+        flex-grow: 1;
+    }
+
+    .address-info {
+        margin-top: 30px;
+    }
+
+    .address-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .address-item {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+
+    .address-item h4 {
+        margin-top: 0;
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    .address-item p {
+        margin: 5px 0;
+        font-size: 16px;
+    }
+
+    .btn-group {
+        margin-top: 10px;
+    }
+
+    .btn-group .btn {
+        margin-right: 10px;
+    }
+
+    .btn {
+        font-size: 16px;
+        padding: 12px 20px;
+    }
+
+    .alert {
+        padding: 20px;
+        background-color: #f44336;
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .alert.success {
+        background-color: #4CAF50;
+    }
+
+    .closebtn {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .closebtn:hover {
+        color: black;
+    }
+</style>
+{% endblock extra_css %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const profilePicture = document.querySelector('.profile-picture img');
+        if (profilePicture) {
+            profilePicture.style.borderRadius = '50%';
+        }
+    });
+</script>
+{% endblock extra_js %}
+
+{% block content %}
+<div class="myaccount-content">
+    <h3 style="text-decoration: underline;font-family: 'Courier New', Courier, monospace;">Profile</h3>
+    <br>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}{{ message.tags }}{% endif %}">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="profile-info">
+        <div class="profile-picture">
+            {% if user_profile.profile_picture %}
+                <img src="{{ user_profile.profile_picture.url }}" alt="Profile Picture">
+            {% else %}
+                <img src="{% static 'images/default-profile.jpg' %}" alt="Default Profile Picture">
+            {% endif %}
+        </div>
+        <div class="profile-details">
+            <p><strong>{{ user.get_full_name }}</strong></p>
+            <p>Email: {{ user.email }}</p>
+            <p>Mobile: {{ user_profile.phone_number }}</p>
+        </div>
+    </div>
+    <br>
+
+    <div class="address-info">
+        <h3 style="text-decoration: underline;font-family: 'Courier New', Courier, monospace;">Address</h3>
+        <br>
+        <ul class="address-list">
+            {% if addresses %}
+                {% for address in addresses %}
+                    <li class="address-item">
+                        <h6>{{ address.user_profile.user.get_full_name }}'s Address</h6>
+                        <p>{{ address.address_line_1 }}</p>
+                        {% if address.address_line_2 %}
+                            <p>{{ address.address_line_2 }}</p>
+                        {% endif %}
+                        <p>{{ address.city }}, {{ address.state }}, {{ address.country }}</p>
+                        <p>Postal Code: {{ address.postal_code }}</p>
+                        <div class="btn-group">
+                            <a href="{% url 'edit_address' address.pk %}" class="btn btn-primary">Edit</a>
+                            <form action="{% url 'delete_address' address.pk %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this address?');">Delete</button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <p>No addresses on file.</p>
+            {% endif %}
+        </ul>
+        <br>
+        <div class="btn-group">
+            <a href="{% url 'add_address' %}" class="btn btn-success">Add New Address</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}

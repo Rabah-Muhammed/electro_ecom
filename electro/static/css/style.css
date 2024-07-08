@@ -1075,7 +1075,7 @@ border-radius: 50%;
 }
 .product-detail-img-nav li{margin-bottom: 10px;cursor:pointer;
 }
-.big-img{padding-left: 70px;
+.big-img{padding-left: 0px;
 }
 .big-img.v2{margin-left:1.5rem;
 }

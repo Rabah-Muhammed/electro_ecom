@@ -74,7 +74,7 @@
                 <div class="menu-right col-md-4 col-lg-4">
                     <ul class="shp-lst list-unstyled d-flex align-items-center justify-content-end">
                         <li><a style="font-weight: 300;" href="#"><img src="{% static '/images/resources/icon-1.png' %}" alt=""> My wishlist</a></li>
-                        <li><a style="font-weight: 500;" href="#"><img src="{% static '/images/resources/icon-2.png' %}" alt="">$0.00</a></li>
+                        <li><span class="badge badge-pill badge-danger notify" >{{cart_count}}</span><a style="font-weight: 500;" href="{% url 'cart' %}"><img src="{% static '/images/resources/icon-2.png' %}"</a></li>
                     </ul>
                 </div>
             </div>
@@ -103,7 +103,7 @@
                     </li>
                     <li><a href="{% url 'products' %}">Products </a>
 
-                    <li><a href="#">Contact Us </a>
+                    <li><a href="{% url 'dashboard' %}">Dashboard </a>
 
                     {% if not user.is_authenticated %}
                     </li>

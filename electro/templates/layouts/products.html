@@ -39,13 +39,39 @@ function hideMenu(){
         <div class="container">
             <div class="row">
                 <div class="filter-wrap d-flex justify-content-between align-items-center flex-wrap">
-                    <a class="meu" href="#"><i class="fi fi-rr-align-justify"></i> FILTER</a>
-                    <select class="form-select form-select-sm" aria-label=".form-select-sm example" style="max-width: 13%;border-radius: 0;padding: 2px 0;">
-                        <option selected>Date, old to new</option>
-                        <option value="1">Pants</option>
-                        <option value="2">Shirts</option>
-                        <option value="3">Shoes</option>
-                    </select>
+                
+                    <form method="get" class="d-flex align-items-center">
+                        <select name="sort" class="form-select form-select-sm" aria-label=".form-select-sm example" style="border-radius: 0;padding: 2px 0;">
+                            <option value="" {% if not sort_option %}selected{% endif %}>Default Sorting</option>
+                            <option value="price_low" {% if sort_option == 'price_low' %}selected{% endif %}>Price, low to high</option>
+                            <option value="price_high" {% if sort_option == 'price_high' %}selected{% endif %}>Price, high to low</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-dark ms-2">Sort</button>
+                    </form>
+                </div>
+                &nbsp;
+                <div class="filter-wrap d-flex justify-content-between align-items-center flex-wrap">
+                 
+                    <form method="get" class="d-flex align-items-center">
+                        <select name="rating" class="form-select form-select-sm" aria-label=".form-select-sm example" style="border-radius: 0;padding: 2px 0;">
+                            <option value="">Filter by Rating</option>
+                            <option value="4plus">4+ Stars</option>
+                            <option value="3plus">3+ Stars</option>
+                            <option value="2plus">2+ Stars</option>
+                            <option value="1plus">1+ Star</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-dark ms-2">Sort</button>
+                    </form>
+                </div>
+                &nbsp;
+                <div class="filter-wrap d-flex justify-content-between align-items-center flex-wrap">
+                    <form method="get" class="d-flex align-items-center">
+                        <select name="featured" class="form-select form-select-sm" aria-label=".form-select-sm example" style="border-radius: 0;padding: 2px 0;">
+                            <option value="">Featured Products</option>
+                            <option value="featured">Show Featured</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-dark ms-2">Filter</button>
+                    </form>
                 </div>
             </div>
             <span class="mr-md-auto"><b>{{ product_count }}</b> items found</span>
@@ -55,7 +81,7 @@ function hideMenu(){
                     <div class="block-product">
                         <div class="product-thumb position-relative">
                             <a href="#"><img src="{{ product.images.url }}"></a>
-                            <a href="#" class="ad-cart position-absolute text-center"><span>Add to Cart</span></a>
+                            <a href="{{product.get_url}}" class="ad-cart position-absolute text-center"><span>View Details</span></a>
                             <div class="product-btns position-absolute">
                                 <a class="wishlist-btn" href="wishlist.html" style="transition-delay:0ms;"><i class="fi fi-rr-heart"></i></a>
                                 <a class="cart-btn" href="cart.html" style="transition-delay: 45ms;"><i class="fi-rr-shopping-bag"></i></a>
@@ -78,7 +104,7 @@ function hideMenu(){
                     <ul class="pagination justify-content-center">
                         {% if products.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Previous">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}&sort={{ sort_option }}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
@@ -87,12 +113,12 @@ function hideMenu(){
                         {% if products.number == num %}
                         <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                         {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}&sort={{ sort_option }}">{{ num }}</a></li>
                         {% endif %}
                         {% endfor %}
                         {% if products.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Next">
+                            <a class="page-link" href="?page={{ products.next_page_number }}&sort={{ sort_option }}" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>

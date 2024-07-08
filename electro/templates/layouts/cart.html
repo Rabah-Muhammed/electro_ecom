@@ -1,0 +1,221 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+{% block body %}
+<title>Cart</title>
+
+<!-- jQuery -->
+<script src="{% static 'js/jquery-2.0.0.min.js' %}" type="text/javascript"></script>
+
+<!-- Bootstrap4 files-->
+<script src="{% static 'js/bootstrap.bundle.min.js' %}" type="text/javascript"></script>
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
+
+<!-- Font awesome 5 -->
+<link href="{% static 'css/all.min.css' %}" type="text/css" rel="stylesheet">
+
+<!-- custom style -->
+<link href="{% static 'css/ui.css' %}" rel="stylesheet" type="text/css"/>
+<link href="{% static 'css/responsive.css' %}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+
+<!-- custom javascript -->
+<script src="{% static 'js/script.js' %}" type="text/javascript"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    var maxQuantity = 5; // Set your maximum quantity here
+
+    // Function to toggle visibility based on cart items
+    function toggleCartVisibility() {
+        if ($('.cart-item').length === 0) {
+            $('#cart-empty-message').show();
+            $('#cart-content').hide();
+        } else {
+            $('#cart-empty-message').hide();
+            $('#cart-content').show();
+        }
+    }
+
+    // Function to update totals
+    function updateTotals() {
+        var total = 0;
+        $('.cart-item').each(function() {
+            var price = parseFloat($(this).find('.price').text().replace('$', ''));
+            var qty = parseInt($(this).find('.quantity').val());
+            total += price * qty;
+        });
+        var tax = (2 * total) / 100;
+        var grandTotal = total + tax;
+        $('#total').text('$' + total.toFixed(2));
+        $('#tax').text('$' + tax.toFixed(2));
+        $('#grand-total').text('$' + grandTotal.toFixed(2));
+    }
+
+    // Initial check on page load
+    toggleCartVisibility();
+    updateTotals();
+
+    // AJAX success handlers to update cart items and totals
+    function updateCartAndTotals() {
+        updateTotals();  // Update totals after any cart item change
+        toggleCartVisibility();
+    }
+
+    // Add item to cart AJAX call
+    $('.btn-add').click(function(e) {
+        e.preventDefault();
+        var productId = $(this).data('product-id');
+        var currentQuantity = parseInt($('#quantity-' + productId).val());
+        if (currentQuantity < maxQuantity) {
+            $.ajax({
+                url: '/add_cart/' + productId + '/',
+                method: 'GET',
+                success: function(response) {
+                    if (response.error) {
+                        alert(response.error);
+                    } else {
+                        $('#quantity-' + productId).val(response.Quantity);
+                        $('#subtotal-' + productId).text('$' + response.sub_total.toFixed(2));
+                        updateCartAndTotals();  // Update cart and totals after successful addition
+                    }
+                }
+            });
+        } else {
+            alert("Maximum quantity reached for this product.");
+        }
+    });
+
+    // Remove item from cart AJAX call
+    $('.btn-remove').click(function(e) {
+        e.preventDefault();
+        var productId = $(this).data('product-id');
+        $.ajax({
+            url: '/remove_cart/' + productId + '/',
+            method: 'GET',
+            success: function(response) {
+                if (response.Quantity > 0) {
+                    $('#quantity-' + productId).val(response.Quantity);
+                    $('#subtotal-' + productId).text('$' + response.sub_total.toFixed(2));
+                } else {
+                    $('#item-' + productId).remove();  // Remove entire row if quantity drops to zero
+                }
+                updateCartAndTotals();  // Update cart and totals after successful removal
+            },
+            error: function(xhr, status, error) {
+                console.error('Error removing product:', error);
+            }
+        });
+    });
+
+    // Remove entire item from cart AJAX call
+    $('.btn-remove-item').click(function(e) {
+        e.preventDefault();
+        var productId = $(this).data('product-id');
+        $.ajax({
+            url: '/remove_cart_item/' + productId + '/',
+            method: 'GET',
+            success: function(response) {
+                $('#item-' + productId).remove();
+                updateCartAndTotals();  // Update cart and totals after removing item
+            },
+            error: function(xhr, status, error) {
+                console.error('Error removing product:', error);
+            }
+        });
+    });
+});
+</script>
+
+<section class="section-content padding-y bg">
+<div class="container">
+
+<div id="cart-empty-message" {% if cart_items %}style="display: none;"{% endif %}>
+    <h2 class="text-center">Your Shopping Cart Is Empty</h2>
+    <br>
+    <div class="text-center">
+        <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+</div>
+
+<div id="cart-content" {% if not cart_items %}style="display: none;"{% endif %}>
+    <div class="row">
+        <aside class="col-lg-9">
+            <div class="card">
+                <table class="table table-borderless table-shopping-cart">
+                    <thead class="text-muted">
+                        <tr class="small text-uppercase">
+                            <th scope="col">Product</th>
+                            <th scope="col" width="120">Quantity</th>
+                            <th scope="col" width="120">Price</th>
+                            <th scope="col" class="text-right" width="200"> </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cart_item in cart_items %}    
+                            <tr id="item-{{ cart_item.product.id }}" class="cart-item">
+                                <td>
+                                    <figure class="itemside align-items-center">
+                                        <div class="aside"><img src="{{ cart_item.product.images.url }}" class="img-sm"></div>
+                                        <figcaption class="info">
+                                            <a href="{{ cart_item.product.get_url }}" class="title text-dark">{{ cart_item.product.product_name }}</a>
+                                        </figcaption>
+                                    </figure>
+                                </td>
+                                <td> 
+                                    <div class="col"> 
+                                        <div class="input-group input-spinner">
+                                            <div class="input-group-prepend">
+                                                <button class="btn btn-light btn-remove" data-product-id="{{ cart_item.product.id }}" type="button" id="button-minus"> <i class="fa fa-minus"></i> </button>
+                                            </div>
+                                            <input type="text" class="form-control quantity" id="quantity-{{ cart_item.product.id }}" value="{{ cart_item.Quantity }}" readonly>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-light btn-add" data-product-id="{{ cart_item.product.id }}" type="button" id="button-plus"> <i class="fa fa-plus"></i> </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td> 
+                                    <div class="price-wrap"> 
+                                        <var class="price" id="subtotal-{{ cart_item.product.id }}">$ {{ cart_item.sub_total }}</var> 
+                                        <small class="text-muted">$ {{ cart_item.product.price }}</small>  
+                                    </div>
+                                </td>
+                                <td class="text-right"> 
+                                    <button class="btn btn-danger btn-remove-item" data-product-id="{{ cart_item.product.id }}">Remove</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </aside>
+        <aside class="col-lg-3">
+            <div class="card">
+                <div class="card-body">
+                    <dl class="dlist-align">
+                        <dt>Total price:</dt>
+                        <dd class="text-right" id="total">${{total}}</dd>
+                    </dl>
+                    <dl class="dlist-align">
+                        <dt>Tax:</dt>
+                        <dd class="text-right" id="tax"> ${{tax}}</dd>
+                    </dl>
+                    <dl class="dlist-align">
+                        <dt>Grand Total:</dt>
+                        <dd class="text-right text-dark b"><strong id="grand-total">${{grand_total}}</strong></dd>
+                    </dl>
+                    <hr>
+                    <p class="text-center mb-3">
+                        <img src="{% static 'images/resources/payments.png' %}" height="26">
+                    </p>
+                    <a href="#" class="btn btn-primary btn-block"> Checkout </a>
+                    <a href="{% url 'home' %}" class="btn btn-light btn-block">Continue Shopping</a>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+</div>
+</section>
+
+{% endblock %}
