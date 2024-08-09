@@ -1,0 +1,319 @@
+{% extends 'ahome.html' %}
+{% load static %}
+
+{% block body %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Coupons</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        body {
+            background-color: #2d3035;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        h1, h2, h4 {
+            color: white;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #383b40;
+            border-radius: 10px;
+        }
+        form {
+            margin-bottom: 20px;
+            display: none;
+            background-color: #2d3035;
+            padding: 20px;
+            border-radius: 10px;
+
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #444;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #383b40;
+        }
+        .pagination {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .pagination a, .pagination span {
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+            padding: 5px 10px;
+            text-decoration: none;
+            margin: 0 2px;
+            border-radius: 5px;
+        }
+        .pagination a:hover {
+            background-color: #0056b3;
+        }
+        .pagination .current {
+            background-color: #0056b3;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #383b40;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 10px;
+        }
+        .modal-header, .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: white;
+            text-decoration: none;
+        }
+        .modal-body {
+            margin: 20px 0;
+        }
+        .modal-footer button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .modal-footer button.cancel {
+            background-color: #6c757d;
+        }
+        .modal-footer button.cancel:hover {
+            background-color: #5a6268;
+        }
+        .modal-footer button.confirm {
+            background-color: #dc3545;
+        }
+        .modal-footer button.confirm:hover {
+            background-color: #c82333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: white; /* Add this line */
+        }
+        .form-group input.date-picker {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Coupons</h2>
+        <br>
+        <button id="addCouponButton">Add Coupon</button>
+        <br>
+        <!-- Form to Create New Coupon -->
+        <form method="post" id="createCouponForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.code.id_for_label }}">Code</label>
+                <input type="text" name="code" id="{{ form.code.id_for_label }}" value="{{ form.code.value }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="{{ form.discount.id_for_label }}">Discount</label>
+                <input type="number" name="discount" id="{{ form.discount.id_for_label }}" value="{{ form.discount.value }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="{{ form.minimum_amount.id_for_label }}">Minimum Amount</label>
+                <input type="number" name="minimum_amount" id="{{ form.minimum_amount.id_for_label }}" value="{{ form.minimum_amount.value }}" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="{{ form.expiry_date.id_for_label }}">Expiry Date</label>
+                <input type="text" name="expiry_date" id="{{ form.expiry_date.id_for_label }}" value="{{ form.expiry_date.value }}" class="form-control date-picker">
+            </div>
+            <button type="submit" name="create_coupon">Create Coupon</button>
+        </form>
+        <br>
+        <h4>Existing Coupons</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Discount</th>
+                    <th>Minimum Amount</th>
+                    <th>Expiry Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for coupon in coupons %}
+                    <tr data-coupon-id="{{ coupon.id }}">
+                        <td>{{ coupon.code }}</td>
+                        <td>{{ coupon.discount }}</td>
+                        <td>{{ coupon.minimum_amount }}</td>
+                        <td>{{ coupon.expiry_date }}</td>
+                        <td>
+                            <button class="delete-button" data-coupon-id="{{ coupon.id }}">Delete</button>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">No coupons available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination">
+            {% if coupons.has_previous %}
+                <a href="?page=1">&laquo; First</a>
+                <a href="?page={{ coupons.previous_page_number }}">Previous</a>
+            {% endif %}
+            
+            {% for page_num in coupons.paginator.page_range %}
+                {% if coupons.number == page_num %}
+                    <span class="current">{{ page_num }}</span>
+                {% else %}
+                    <a href="?page={{ page_num }}">{{ page_num }}</a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if coupons.has_next %}
+                <a href="?page={{ coupons.next_page_number }}">Next</a>
+                <a href="?page={{ coupons.paginator.num_pages }}">Last &raquo;</a>
+            {% endif %}
+        </div>
+
+        <!-- Modal for Deletion Confirmation -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="modal-title">Delete Coupon</span>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this coupon?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirmDelete" class="confirm">Yes, delete</button>
+                    <button id="cancelDelete" class="cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#addCouponButton').click(function() {
+                $('#createCouponForm').toggle();
+            });
+
+            var couponIdToDelete;
+
+            $('.delete-button').click(function() {
+                couponIdToDelete = $(this).data('coupon-id');
+                $('#deleteModal').show();
+            });
+
+            $('#cancelDelete, .close').click(function() {
+                $('#deleteModal').hide();
+                couponIdToDelete = null;
+            });
+
+            $('#confirmDelete').click(function() {
+                $.ajax({
+                    url: "{% url 'manage_coupons' %}",
+                    type: "POST",
+                    data: {
+                        'coupon_id': couponIdToDelete,
+                        'delete_coupon': true,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $('tr[data-coupon-id="' + couponIdToDelete + '"]').remove();
+                            $('#deleteModal').hide();
+                        } else {
+                            alert('Failed to delete coupon.');
+                        }
+                    }
+                });
+            });
+
+            // Initialize Flatpickr for the expiry date field
+            flatpickr(".date-picker", {
+                dateFormat: "Y-m-d",
+                minDate: "today"
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

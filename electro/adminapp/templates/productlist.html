@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block body %}
+<!-- Include Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
     /* Custom styles for the product list */
     body {
@@ -35,6 +38,10 @@
         font-weight: bold;
     }
 
+    td {
+        color: white; /* Make all <td> text color white */
+    }
+
     tr:nth-child(even) {
         background-color: #2d3035;
     }
@@ -51,39 +58,9 @@
 
     .add-product-btn {
         position: absolute;
-        bottom: 20px;
-        right: 20px;
+        top: 60px; /* Adjusted position from the top */
+        left: 20px;
         z-index: 999; /* Ensure button stays on top */
-    }
-
-    .message {
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        opacity: 1;
-        transition: opacity 0.5s ease-out;
-    }
-
-    .message.success {
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-        color: #155724;
-    }
-
-    .message.error {
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-        color: #721c24;
-    }
-
-    .message.info {
-        background-color: #d1ecf1;
-        border-color: #bee5eb;
-        color: #0c5460;
-    }
-
-    .hidden {
-        opacity: 0;
     }
 
     .pagination-container {
@@ -107,7 +84,6 @@
         line-height: 1.25;
         color: #007bff;
         background-color:  #2d3035;
-        
     }
 
     .page-link {
@@ -144,57 +120,34 @@
     }
 
     /* Modal styles */
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgb(0,0,0);
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        padding-top: 60px;
+    .modal-content {
+        background-color: #2d3035; /* Dark background for the modal */
+        color: white; /* White text color for the modal */
     }
 
-    .modal-content {
-        background-color: #2d3035;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-        color: white;
+    .modal-header, .modal-body, .modal-footer {
+        color: white !important; /* Ensure white text color with !important */
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #444; /* Optional: border for better visibility */
+    }
+
+    .modal-footer {
+        border-top: 1px solid #444; /* Optional: border for better visibility */
     }
 
     .close {
-        color: #aaa;
-        float: right;
+        color: #fff;
         font-size: 28px;
         font-weight: bold;
     }
 
     .close:hover,
     .close:focus {
-        color: #000;
+        color: #ddd;
         text-decoration: none;
         cursor: pointer;
-    }
-
-    .modal-header, .modal-footer {
-        padding: 10px;
-        text-align: center;
-    }
-
-    .modal-body {
-        padding: 2px 16px;
-    }
-
-    .page-content{
-        padding: 0px;
-    }
-    .page-header{
-        margin-bottom: 0px;
     }
 </style>
 
@@ -202,11 +155,13 @@
     <div class="page-header">
         <div class="container-fluid">
             <h2 class="h5 no-margin-bottom">Product List</h2>
+            <a href="{% url 'addproduct' %}" class="btn btn-info add-product-btn mt-5">Add Product</a>
         </div>
     </div>
+    <br>
 
     <div style="overflow-x:auto;">
-        <table class="table table-striped table-bordered">
+        <table class="table table-striped table-bordered mt-5">
             <thead class="thead-dark">
                 <tr>
                     <th>ID</th>
@@ -214,6 +169,7 @@
                     <th>Price</th>
                     <th>Stock</th>
                     <th>Category</th>
+                    <th>Offer Percentage</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -225,15 +181,40 @@
                     <td>${{ product.price }}</td>
                     <td>{{ product.stock }}</td>
                     <td>{{ product.category.category_name }}</td>
+                    <td>{{ product.offer_percentage|default:"N/A" }}%</td>
                     <td class="actions">
                         <a href="{% url 'editproduct' product.id %}" class="btn btn-sm btn-info">Edit</a>
-                        <button class="btn btn-sm btn-danger" onclick="confirmDelete('{{ product.id }}')">Delete</button>
+                        <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#deleteModal{{ product.id }}">Delete</button>
                     </td>
                 </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6">No products found.</td>
-                </tr>
+
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{ product.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel{{ product.id }}">Confirm Delete</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this product?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <form action="{% url 'delete_product' product.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning">Soft Delete</button>
+                                </form>
+                                <form action="{% url 'hard_delete_product' product.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Hard Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 {% endfor %}
             </tbody>
         </table>
@@ -276,65 +257,16 @@
         </div>
         {% endif %}
     </div>
-    
-    <a href="{% url 'addproduct' %}" class="btn btn-info add-product-btn">Add Product</a>
 </div>
 
-<!-- The Modal -->
-<div id="myModal" class="modal">
-    <!-- Modal content -->
-    <div class="modal-content">
-        <div class="modal-header">
-            <span class="close">&times;</span>
-            <h2>Confirm Deletion</h2>
-        </div>
-        <div class="modal-body">
-            <p>Are you sure you want to delete this product?</p>
-        </div>
-        <div class="modal-footer">
-            <button id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete</button>
-            <button id="cancelBtn" class="btn btn-secondary">Cancel</button>
-        </div>
-    </div>
-</div>
+<!-- Include jQuery, Popper.js, and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    // Get the modal
-    var modal = document.getElementById("myModal");
-
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName("close")[0];
-
-    // Get the cancel button
-    var cancelBtn = document.getElementById("cancelBtn");
-
-    // When the user clicks the button, open the modal 
-    function confirmDelete(productId) {
-        modal.style.display = "block";
-        var confirmBtn = document.getElementById("confirmDeleteBtn");
-        confirmBtn.onclick = function() {
-            window.location.href = "{% url 'deleteproduct' 0 %}".replace(0, productId);
-        }
-    }
-
-    // When the user clicks on <span> (x) or cancel button, close the modal
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    cancelBtn.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
+    $(document).ready(function() {
+        // Optional: Custom JavaScript if needed
+    });
 </script>
 {% endblock %}
-
-
-
-

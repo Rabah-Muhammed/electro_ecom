@@ -11,7 +11,17 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
 
-
+<script src="https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.4.0/dist/panzoom.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const imgBigWrap = document.querySelector('.big-img-wrap');
+    const panzoom = Panzoom(imgBigWrap, {
+        maxScale: 4,
+        contain: 'outside'
+    });
+    imgBigWrap.addEventListener('wheel', panzoom.zoomWithWheel);
+});
+</script>
 
 <div class="res-header w-100">
   <div class="res-topbar w-100">
@@ -105,48 +115,23 @@
         <div class="row">
           <div class="col-md-12 col-sm-12 col-lg-6">
             <div class="product-detail-imgs position-relative w-100">
-
-               <!-- mini image -->
-
-              <!-- <ul class="product-detail-img-nav list-unstyled mb-0">
-
-              <li style="display:block;">
-              <div class="product-detail-mini-img overflow-hidden active">
-              <br>
-              <br>
-              <br>
-              <img class="img-fluid w-100" src="{{ single_product.images.url }}">
-              <br>
-              <br>
-              <img class="img-fluid w-100" src="{{ single_product.image1.url }}">
-              <br>
-              <br>
-              <img class="img-fluid w-100" src="{{ single_product.image2.url }}">
-              </div>
-              </li>
-              </ul>
-             -->
-              <!-- mini image -->
-
-              <!-- Slick Slider Container -->
-              <div class="product-slider">
-                <div class="big-img-container">
-                  <img src="{{ single_product.images_thumbnail.url }}" class="big-img">
-                </div>
-                <div class="big-img-container">
-                  <img src="{{ single_product.image1_thumbnail.url }}" class="big-img">
-                </div>
-                <div class="big-img-container">
-                  <img src="{{ single_product.image2_thumbnail.url }}" class="big-img">
-                </div>
+              <div class="big-img-wrap mainImage">
+                <center><img src="{{ single_product.images.url }}" alt="{{ single_product.product_name }}"></center>
               </div>
             </div>
+            <ul class="thumb">
+              <li>
+                <a href="{{ single_product.images.url }}" target="mainImage"><img src="{{ single_product.images.url }}" alt="Product Image"></a>
+                {% for image in product_gallery %}
+                  <a href="{{ image.image.url }}" target="mainImage"><img src="{{ image.image.url }}" alt="Product Image"></a>
+                {% endfor %}
+              </li>
+            </ul>
           </div>
           
-
           <div class="col-md-12 col-sm-12 col-lg-6">
             <div class="product-detail-info position-relative w-100">
-              <p>Rating:{{single_product.averageReview}}</p>
+              <p>Rating: {{ single_product.averageReview }}</p>
               <div class="rating-star">
                 <span>
                   <i class="fa fa-star{% if single_product.averageReview < 0.5 %}-o{% elif single_product.averageReview >= 0.5 and single_product.averageReview < 1 %}-half-o{% endif %}" aria-hidden="true"></i>
@@ -156,73 +141,78 @@
                   <i class="fa fa-star{% if single_product.averageReview < 4.5 %}-o{% elif single_product.averageReview >= 4.5 and single_product.averageReview < 5 %}-half-o{% endif %}" aria-hidden="true"></i>
                 </span>
               </div>
- 
-              <br>
-              <h2 class="mb-0">{{ single_product.product_name }}</h2>
-              <span class="d-block price">₹ {{ single_product.price }}</span>
-              <br>
-              <h6>Stock: {{single_product.stock}}</h6>
 
+              <h2 class="mb-0">{{ single_product.product_name }}</h2>
+              <p class="mb-2"><strong>Brand:</strong> {{ single_product.brand }}</p>
+              {% if single_product.original_price and single_product.original_price > single_product.price %}
+              <span class="d-block price">
+                <span class="original-price" style="text-decoration: line-through;">₹ {{ single_product.original_price }}</span>
+                <span class="discounted-price">₹ {{ single_product.price }}</span>
+                {% if single_product.offer_percentage or single_product.category.offer_percentage %}
+                  {% with product_offer=single_product.offer_percentage|default_if_none:0 %}
+                    {% with category_offer=single_product.category.offer_percentage|default_if_none:0 %}
+                      {% if product_offer > category_offer %}
+                        <span class="offer-percentage" style="color: green; font-size: 16px;">( {{ product_offer }}% off)</span>
+                      {% else %}
+                        <span class="offer-percentage" style="color: green; font-size: 16px;">( {{ category_offer }}% off)</span>
+                      {% endif %}
+                    {% endwith %}
+                  {% endwith %}
+                {% endif %}
+              </span>
+              {% else %}
+                <span class="d-block price">₹ {{ single_product.price }}</span>
+              {% endif %}
+
+              <br>
+              <h6>Stock: {{ single_product.stock }}</h6>
 
               <ul class="product-stock-info list-unstyled mb-0">
                 {% if single_product.stock <= 0 %}
-                <li>Out of stock</li>
+                  <li>Out of stock</li>
                 {% else %}
-                <li>In stock</li>
-                <li>Free delivery available</li>
-                <li>Sales 30% Off Use Code: MOTIVE30</li>
+                  <li>In stock</li>
+                  <li>Free delivery available</li>
+                {% endif %}
               </ul>
-              {% endif %}
 
               <p class="mb-0">{{ single_product.description }}</p>
-               <br>
-          
               <br>
-            {% if single_product.stock <= 0 %}
-              <h5>Out of Stock</h5>
+
+              {% if single_product.stock <= 0 %}
+                <h5>Out of Stock</h5>
               {% else %}
-              {% if in_cart %}
-              <a href="#"   class="btn btn-success" type="submit" >Added to Cart <i class="fas fa-check" ></i> </a>
-              <a href="{% url 'cart' %}"   class="btn btn-dark" type="submit" >View Cart <i class="fas fa-eye" ></i> </a>
-              {% else %}
-              <div class="product-bottom d-flex flex-wrap align-items-center w-100">
-                <div class="product-quanty">
-                  <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
+                {% if in_cart %}
+                  <a href="#" class="btn btn-success" type="submit">Added to Cart <i class="fas fa-check"></i></a>
+                  <a href="{% url 'cart' %}" class="btn btn-dark" type="submit">View Cart <i class="fas fa-eye"></i></a>
+                {% else %}
+                  <div class="product-bottom d-flex flex-wrap align-items-center w-100">
+                    <div class="product-quanty">
+                      <div class="input-group bootstrap-touchspin bootstrap-touchspin-injected">
+                        <!-- Quantity input, if needed -->
+                      </div>
+                    </div>
+                    <a href="{% url 'add_cart' single_product.id %}" class="btn btn-dark" type="submit">Add to Cart</a>
                   </div>
-                </div>
-                <a href="{% url 'add_cart' single_product.id %}"   class="btn btn-dark" type="submit" >Add to Cart</a>
-              </div>
+                {% endif %}
               {% endif %}
-            {% endif %}
 
               <div class="wish my-4">
-                <a class="heart-btn d-inline-block rounded-circle" href="wishlist.html" title=""><i class="fi-rr-heart"></i>Add to Wishlist</a>
+                <a class="heart-btn d-inline-block rounded-circle" href="{% url 'add_to_wishlist' single_product.id %}" title=""><i class="fi-rr-heart"></i>Add to Wishlist</a>
               </div>
               <div class="safe-check">
-                <img src="{% static '/images/resources/safe.png' %}">
+                <img src="{% static 'images/resources/safe.png' %}" alt="Safe Checkout">
               </div>
             </div>
           </div>
- 
         </div>
       </div>
     </div>
   </div>
 </section>
-<script type="text/javascript">
-  $(document).ready(function(){
-    $('.product-slider').slick({
-      dots: true,
-      infinite: true,
-      speed: 500,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      arrows: true,
-      autoplay: false,
-      autoplaySpeed: 2000,
-    });
-  });
-</script>
+
+
+
 <style>
   /* Zoom effect on hover */
   .big-img-container {
@@ -258,8 +248,8 @@
             <div class="block-product">
                 <div class="product-thumb position-relative">
                     <a href="#"><img src="{{ product.images.url }}"></a>
-                    <a href="#" class="ad-cart position-absolute text-center">
-                        <span>Add to Cart</span>
+                    <a href="{{product.get_url}}" class="ad-cart position-absolute text-center">
+                        <span>View Details</span>
                     </a>
                     <div class="product-btns position-absolute">
                       <a class="wishlist-btn" href="wishlist.html" style="transition-delay:0ms;">
@@ -460,6 +450,40 @@
     font-size: 0.9em;
     color: #888;
 }
+/* Mini Image Slider Styles */
+.mini-image-slider {
+  display: flex;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.mini-image-slider img {
+  height: 80px; /* Adjust height as needed */
+  object-fit: cover;
+  margin-right: 10px; /* Space between images */
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.mini-image-slider img:hover {
+  transform: scale(1.1); /* Zoom effect on hover */
+}
+
+/* Big Image Slider Styles */
+.product-slider {
+  position: relative;
+}
+
+.big-img-container {
+  width: 100%;
+  height: auto;
+}
+
+.big-img {
+  width: 100%;
+  height: auto;
+}
+
 
 </style>
   <header class="section-heading">
@@ -475,6 +499,7 @@
 
 <!--container--></div>
 <!--w-100--></div>
+
 </section>
 
 {% endblock body %}

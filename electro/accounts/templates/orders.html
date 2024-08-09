@@ -1,45 +1,72 @@
 {% extends 'my-account.html' %}
 
-{% block title %}Orders{% endblock %}
+{% block title %}Order History{% endblock %}
 
 {% block content %}
-<div class="myaccount-content">
-    <h3>Orders</h3>
-    <div class="myaccount-table table-responsive text-center">
-        <table class="table table-bordered">
-            <thead class="thead-light">
-            <tr>
-                <th>Order</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>Aug 22, 2018</td>
-                <td>Pending</td>
-                <td>$3000</td>
-                <td><a href="cart.html" class="btn-add-to-cart">View</a></td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>July 22, 2018</td>
-                <td>Approved</td>
-                <td>$200</td>
-                <td><a href="cart.html" class="btn-add-to-cart">View</a></td>
-            </tr>
-            <tr>
-                <td>3</td>
-                <td>June 12, 2017</td>
-                <td>On Hold</td>
-                <td>$990</td>
-                <td><a href="cart.html" class="btn-add-to-cart">View</a></td>
-            </tr>
-            </tbody>
-        </table>
+<title>Order History</title>
+
+<section class="section-content padding-y bg" style="width: 900px;">
+    <div class="container">
+        <h2 class="text-center mb-0 mt-0">Order History</h2>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-15"> <!-- Adjust the width here -->
+                <div class="card shadow-sm" style="min-height: 500px;"> <!-- Increase height here -->
+                    <div class="card-body">
+                        <table class="table table-hover table-responsive-sm">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Products</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Date & Time</th>
+                                    <th>Delivery Address</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td>{{ order.id }}</td>
+                                    <td>
+                                        {% for item in order.orderitem_set.all %}
+                                            {{ item.product.name }} ({{ item.quantity }})<br>
+                                        {% endfor %}
+                                    </td>
+                                    <td>${{ order.total_amount }}</td>
+                                    <td>{{ order.status }}</td>
+                                    <td>{{ order.created_at|date:"Y-m-d H:i" }}</td> <!-- Date and Time -->
+                                    <td>{{ order.delivery_address }}</td> <!-- Delivery Address -->
+                                    <td>
+                                        {% if order.status == 'Pending' %}
+                                            <a href="{% url 'cancel_order' order.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-{% endblock content %}
+</section>
+
+<style>
+    .table-responsive-sm {
+        overflow-x: auto;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .card {
+        margin-top: 20px;
+    }
+    .thead-dark th {
+        background-color: #343a40;
+        color: white;
+    }
+</style>
+{% endblock %}

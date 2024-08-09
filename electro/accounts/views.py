@@ -1,3 +1,6 @@
+from django.http import JsonResponse
+
+from carts.models import Order
 from .models import Address
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
@@ -19,7 +22,8 @@ def dashboard(request):
 
 
 def orders(request):
-    return render(request,'orders.html')
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'orders.html', {'orders': orders})
 
 def paymentmethod(request):
     return render(request,'paymentm.html')
@@ -95,6 +99,8 @@ def add_address(request):
 
     return render(request, 'addaddress.html', {'address_form': address_form})
 
+
+
 def edit_address(request, pk):
     address = get_object_or_404(Address, pk=pk)
     if request.method == 'POST':
@@ -113,3 +119,4 @@ def delete_address(request, pk):
         address.delete()
         messages.success(request, 'Address deleted successfully.')
     return redirect('profile')
+

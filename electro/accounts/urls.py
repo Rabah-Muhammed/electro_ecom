@@ -11,7 +11,7 @@ urlpatterns = [
     path('change-password',views.change_password,name='change-password'),
     path('profile/add_address/', views.add_address, name='add_address'),
     path('profile/edit_address/<int:pk>/', views.edit_address, name='edit_address'),
-     path('address/delete/<int:pk>/', views.delete_address, name='delete_address'),
+    path('address/delete/<int:pk>/', views.delete_address, name='delete_address'),
     
 ]
 

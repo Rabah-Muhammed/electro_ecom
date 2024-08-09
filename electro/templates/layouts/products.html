@@ -9,6 +9,7 @@
 <div class="mobile-nav position-relative">
     <!-- Rest of your mobile navigation content -->
 </div>
+
 <script>
 var navLinks = document.getElementById("navLinks");
 function showMenu(){
@@ -31,102 +32,145 @@ function hideMenu(){
             </ul>
         </div>
     </div>
+    {% if 'search' in request.path %}
+        <span style="font-size: 30px; font-weight: bold;">Search Results</span>
+    {% else %}
+        <span style="font-size: 30px; font-weight: bold;">Our Store</span>
+    {% endif %}
 </div>
 
 <div class="border-top mb-2" style="opacity: .3;"></div>
 <section class="sp-wrap org">
-    <div class="w-100">
-        <div class="container">
-            <div class="row">
-                <div class="filter-wrap d-flex justify-content-between align-items-center flex-wrap">
-                
-                    <form method="get" class="d-flex align-items-center">
-                        <select name="sort" class="form-select form-select-sm" aria-label=".form-select-sm example" style="border-radius: 0;padding: 2px 0;">
-                            <option value="" {% if not sort_option %}selected{% endif %}>Default Sorting</option>
-                            <option value="price_low" {% if sort_option == 'price_low' %}selected{% endif %}>Price, low to high</option>
-                            <option value="price_high" {% if sort_option == 'price_high' %}selected{% endif %}>Price, high to low</option>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-dark ms-2">Sort</button>
-                    </form>
-                </div>
-                &nbsp;
-                <div class="filter-wrap d-flex justify-content-between align-items-center flex-wrap">
-                 
-                    <form method="get" class="d-flex align-items-center">
-                        <select name="rating" class="form-select form-select-sm" aria-label=".form-select-sm example" style="border-radius: 0;padding: 2px 0;">
-                            <option value="">Filter by Rating</option>
-                            <option value="4plus">4+ Stars</option>
-                            <option value="3plus">3+ Stars</option>
-                            <option value="2plus">2+ Stars</option>
-                            <option value="1plus">1+ Star</option>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-dark ms-2">Sort</button>
-                    </form>
-                </div>
-                &nbsp;
-                <div class="filter-wrap d-flex justify-content-between align-items-center flex-wrap">
-                    <form method="get" class="d-flex align-items-center">
-                        <select name="featured" class="form-select form-select-sm" aria-label=".form-select-sm example" style="border-radius: 0;padding: 2px 0;">
-                            <option value="">Featured Products</option>
-                            <option value="featured">Show Featured</option>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-dark ms-2">Filter</button>
-                    </form>
-                </div>
-            </div>
-            <span class="mr-md-auto"><b>{{ product_count }}</b> items found</span>
-            <div class="row">
-                {% for product in products %}
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <div class="block-product">
-                        <div class="product-thumb position-relative">
-                            <a href="#"><img src="{{ product.images.url }}"></a>
-                            <a href="{{product.get_url}}" class="ad-cart position-absolute text-center"><span>View Details</span></a>
-                            <div class="product-btns position-absolute">
-                                <a class="wishlist-btn" href="wishlist.html" style="transition-delay:0ms;"><i class="fi fi-rr-heart"></i></a>
-                                <a class="cart-btn" href="cart.html" style="transition-delay: 45ms;"><i class="fi-rr-shopping-bag"></i></a>
-                                <a class="expand-btn" href="{% url 'product_detail' category_slug=product.category.slug product_slug=product.slug %}" style="transition-delay:90ms;"><i class="fi fi-rr-picture"></i></a>
-                            </div>
-                        </div>
-                        <div class="product-body text-center">
-                            <a href="#" class="brand-name">{{ product.product_name }}</a>
-                            <h2 class="product-name"><a href="#">{{ product.product_name }}</a></h2>
-                            <span class="product-price">₹{{ product.price }}</span>
-                            <div class="prd-options"></div>
-                        </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <!-- Filter and Sort Section -->
+                <div class="filter-sort-wrap" style="margin-right: 35px;">
+                    <!-- Sort Form -->
+                    <div class="filter-item mb-3">
+                        <form method="get" class="d-flex align-items-center">
+                            <input type="hidden" name="rating" value="{{ request.GET.rating }}">
+                            <input type="hidden" name="featured" value="{{ request.GET.featured }}">
+                            <input type="hidden" name="new_arrivals" value="{{ request.GET.new_arrivals }}">
+                            <select name="sort" class="form-select form-select-sm" aria-label="Sort Products" style="border-radius: 0; padding: 10px;">
+                                <option value="" {% if not sort_option %}selected{% endif %}>Default Sorting</option>
+                                <option value="price_low" {% if sort_option == 'price_low' %}selected{% endif %}>Price, low to high</option>
+                                <option value="price_high" {% if sort_option == 'price_high' %}selected{% endif %}>Price, high to low</option>
+                                <option value="name_a_z" {% if sort_option == 'name_a_z' %}selected{% endif %}>Name, A-Z</option>
+                                <option value="name_z_a" {% if sort_option == 'name_z_a' %}selected{% endif %}>Name, Z-A</option>
+                            </select>
+                            <button type="submit" class="btn btn-dark ms-2" style="border-radius: 0;">Sort</button>
+                        </form>
+                    </div>
+
+                    <!-- Filter by Rating -->
+                    <div class="filter-item mb-3">
+                        <form method="get" class="d-flex align-items-center">
+                            <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                            <input type="hidden" name="featured" value="{{ request.GET.featured }}">
+                            <input type="hidden" name="new_arrivals" value="{{ request.GET.new_arrivals }}">
+                            <select name="rating" class="form-select form-select-sm" aria-label="Filter by Rating" style="border-radius: 0; padding: 10px;">
+                                <option value="">Filter by Rating</option>
+                                <option value="4plus" {% if request.GET.rating == '4plus' %}selected{% endif %}>4+ Stars</option>
+                                <option value="3plus" {% if request.GET.rating == '3plus' %}selected{% endif %}>3+ Stars</option>
+                                <option value="2plus" {% if request.GET.rating == '2plus' %}selected{% endif %}>2+ Stars</option>
+                                <option value="1plus" {% if request.GET.rating == '1plus' %}selected{% endif %}>1+ Star</option>
+                            </select>
+                            <button type="submit" class="btn btn-dark ms-2" style="border-radius: 0;">Filter</button>
+                        </form>
+                    </div>
+
+                    <!-- Filter by Featured -->
+                    <div class="filter-item mb-3">
+                        <form method="get" class="d-flex align-items-center">
+                            <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                            <input type="hidden" name="rating" value="{{ request.GET.rating }}">
+                            <input type="hidden" name="new_arrivals" value="{{ request.GET.new_arrivals }}">
+                            <select name="featured" class="form-select form-select-sm" aria-label="Featured Products" style="border-radius: 0; padding: 10px;">
+                                <option value="">Featured Products</option>
+                                <option value="featured" {% if request.GET.featured == 'featured' %}selected{% endif %}>Show Featured</option>
+                            </select>
+                            <button type="submit" class="btn btn-dark ms-2" style="border-radius: 0;">Filter</button>
+                        </form>
+                    </div>
+
+                    <!-- Filter by New Arrivals -->
+                    <div class="filter-item mb-3">
+                        <form method="get" class="d-flex align-items-center">
+                            <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                            <input type="hidden" name="rating" value="{{ request.GET.rating }}">
+                            <input type="hidden" name="featured" value="{{ request.GET.featured }}">
+                            <select name="new_arrivals" class="form-select form-select-sm" aria-label="New Arrivals" style="border-radius: 0; padding: 10px;">
+                                <option value="">New Arrivals</option>
+                                <option value="new" {% if request.GET.new_arrivals == 'new' %}selected{% endif %}>Show New Arrivals</option>
+                            </select>
+                            <button type="submit" class="btn btn-dark ms-2" style="border-radius: 0;">Filter</button>
+                        </form>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-            <!-- Pagination Section -->
-            <div class="pagination mt-4">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        {% if products.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ products.previous_page_number }}&sort={{ sort_option }}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                        {% for num in products.paginator.page_range %}
-                        {% if products.number == num %}
-                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ num }}&sort={{ sort_option }}">{{ num }}</a></li>
-                        {% endif %}
+            <div class="col-lg-9">
+                <span class="mr-md-auto"><b>{{ product_count }}</b> items found</span>
+                <div class="row">
+                    {% if products %}
+                        {% for product in products %}
+                        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                            <div class="block-product">
+                                <div class="product-thumb position-relative">
+                                    <a href="#"><img src="{{ product.images.url }}" alt="{{ product.product_name }}" class="img-fluid"></a>
+                                    <a href="{{ product.get_url }}" class="ad-cart position-absolute text-center"><span>View Details</span></a>
+                                    <div class="product-btns position-absolute">
+                                        <a class="wishlist-btn" href="{% url 'add_to_wishlist' product.id %}"><i class="fi fi-rr-heart"></i></a>
+                                        <a class="cart-btn" href="{% url 'cart' %}"><i class="fi-rr-shopping-bag"></i></a>
+                                        <a class="expand-btn" href="{% url 'product_detail' category_slug=product.category.slug product_slug=product.slug %}"><i class="fi fi-rr-picture"></i></a>
+                                    </div>
+                                </div>
+                                <div class="product-body text-center">
+                                    <a href="#" class="brand-name">{{ product.product_name }}</a>
+                                    <h2 class="product-name"><a href="#">{{ product.product_name }}</a></h2>
+                                    <span class="product-price">₹{{ product.price }}</span>
+                                    <div class="prd-options"></div>
+                                </div>
+                            </div>
+                        </div>
                         {% endfor %}
-                        {% if products.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ products.next_page_number }}&sort={{ sort_option }}" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </nav>
+
+                        <!-- Pagination Section -->
+                        <div class="pagination mt-4">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    {% if products.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.rating %}&rating={{ request.GET.rating }}{% endif %}{% if request.GET.featured %}&featured={{ request.GET.featured }}{% endif %}{% if request.GET.new_arrivals %}&new_arrivals={{ request.GET.new_arrivals }}{% endif %}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                    {% for num in products.paginator.page_range %}
+                                    {% if products.number == num %}
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.rating %}&rating={{ request.GET.rating }}{% endif %}{% if request.GET.featured %}&featured={{ request.GET.featured }}{% endif %}{% if request.GET.new_arrivals %}&new_arrivals={{ request.GET.new_arrivals }}{% endif %}">{{ num }}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% if products.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}{% if request.GET.rating %}&rating={{ request.GET.rating }}{% endif %}{% if request.GET.featured %}&featured={{ request.GET.featured }}{% endif %}{% if request.GET.new_arrivals %}&new_arrivals={{ request.GET.new_arrivals }}{% endif %}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <h2 class="text-center font-weight-bold">No Results Found. Please Try again.</h2>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 </section>
-{% endblock body %}
+{% endblock %}

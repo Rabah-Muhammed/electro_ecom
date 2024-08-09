@@ -1,0 +1,201 @@
+{% extends 'ahome.html' %}
+{% load static %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Report</title>
+    <style>
+        body {
+            background-color: #2d3035;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #1e2328;
+            border-radius: 10px;
+        }
+        h1, h2, h3 {
+            color: #ffffff;
+        }
+        form {
+            background-color: #3a3f44;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        label {
+            margin-bottom: 10px;
+        }
+        select, input[type="date"], button {
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #3a3f44;
+            color: #ffffff;
+            width: 100%;
+        }
+        .buttons {
+            grid-column: span 2;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        button {
+            background-color: #007bff;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
+            width: auto;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+        .pagination {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .pagination a {
+            color: #007bff;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+        .pagination span {
+            margin: 0 5px;
+        }
+        .pagination a:hover {
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #444;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sales Report</h1>
+        <form method="get">
+            <label for="report_type">Report Type:</label>
+            <select id="report_type" name="report_type">
+                <option value="daily" {% if report_type == 'Daily' %}selected{% endif %}>Daily</option>
+                <option value="weekly" {% if report_type == 'Weekly' %}selected{% endif %}>Weekly</option>
+                <option value="yearly" {% if report_type == 'Yearly' %}selected{% endif %}>Yearly</option>
+                <option value="custom" {% if report_type == 'Custom' %}selected{% endif %}>Custom</option>
+            </select>
+
+            <div id="custom-date-fields" class="{% if report_type != 'Custom' %}hidden{% endif %}">
+                <label for="start_date">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date|default_if_none:'' }}">
+                <label for="end_date">End Date:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date|default_if_none:'' }}">
+                <label for="filter_period">Filter Period:</label>
+                <select id="filter_period" name="filter_period">
+                    <option value="">Select</option>
+                    <option value="1_day" {% if filter_period == '1_day' %}selected{% endif %}>Last 1 Day</option>
+                    <option value="1_week" {% if filter_period == '1_week' %}selected{% endif %}>Last 1 Week</option>
+                    <option value="1_month" {% if filter_period == '1_month' %}selected{% endif %}>Last 1 Month</option>
+                </select>
+            </div>
+
+            <div class="buttons">
+                <button type="submit">Generate Report</button>
+                <button type="submit" name="generate_pdf" value="true">Download PDF</button>
+                <button type="submit" name="generate_excel" value="true">Download Excel</button>
+            </div>
+        </form>
+
+        <hr>
+
+        {% if report_type %}
+            <h2>{{ report_type }} Sales Report</h2>
+            {% if report_type == 'Daily' %}
+                <p>Date: {{ date }}</p>
+            {% elif report_type == 'Weekly' %}
+                <p>Week: {{ start_date }} to {{ end_date }}</p>
+            {% elif report_type == 'Yearly' %}
+                <p>Year: {{ year }}</p>
+            {% elif report_type == 'Custom' %}
+                <p>Custom Range: {{ start_date }} to {{ end_date }}</p>
+            {% endif %}
+            <p>Total Sales: ${{ total_sales }}</p>
+            <p>Total Coupon Discount: ${{ total_coupon }}</p>
+            <p>Total Orders: {{ total_orders }}</p> <!-- Added this line -->
+            <h3>Orders</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Total Amount</th>
+                        <th>Coupon Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.user.username }}</td>
+                            <td>${{ order.total_amount }}</td>
+                            <td>${{ order.coupon_amount }}</td>
+                            <td>{{ order.status }}</td>
+                            <td>{{ order.created_at }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="pagination">
+                {% if orders.has_previous %}
+                    <a href="?report_type={{ report_type }}&start_date={{ start_date }}&end_date={{ end_date }}&page={{ orders.previous_page_number }}">Previous</a>
+                {% endif %}
+                <span>Page {{ orders.number }} of {{ orders.paginator.num_pages }}</span>
+                {% if orders.has_next %}
+                    <a href="?report_type={{ report_type }}&start_date={{ start_date }}&end_date={{ end_date }}&page={{ orders.next_page_number }}">Next</a>
+                {% endif %}
+            </div>
+        {% elif error %}
+            <p>{{ error }}</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('report_type').addEventListener('change', function () {
+            var customDateFields = document.getElementById('custom-date-fields');
+            if (this.value === 'custom') {
+                customDateFields.classList.remove('hidden');
+            } else {
+                customDateFields.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

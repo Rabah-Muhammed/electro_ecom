@@ -1,0 +1,85 @@
+{% extends 'layouts/main.html' %}
+{% block body %}
+<div class="order-detail-container">
+    <section class="section-content padding-y bg">
+        <div class="container">
+            <h2 class="text-center mb-4 mt-4">Order Detail</h2>
+
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h4 class="card-title">Order ID: {{ order.id }}</h4>
+                            <p class="card-text"><strong>Status:</strong> {{ order.status }}</p>
+                            <p class="card-text"><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+                            <p class="card-text"><strong>Payment Method:</strong> {{ payment_method }}</p>
+
+                            <h5 class="mt-4 mb-3">Products</h5>
+                            <table class="table table-bordered table-striped">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in item_totals %}
+                                    <tr>
+                                        <td>{{ item.product_name }}</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>${{ item.price }}</td>
+                                        <td>${{ item.total }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                            <h5 class="mt-4 mb-3">Order Summary</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Total Amount:</strong> ${{ total_amount }}</li>
+                                <li><strong>Tax (2%):</strong> ${{ tax }}</li>
+                                <li><strong>Delivery Charge:</strong> ${{ delivery_charge }}</li>
+                                <li class="font-weight-bold"><strong>Grand Total:</strong> ${{ grand_total }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+    .order-detail-container .card {
+        border: none;
+        border-radius: .25rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    .order-detail-container .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+    .order-detail-container .card-text {
+        font-size: 1.125rem;
+    }
+    .order-detail-container .table thead th {
+        background-color: #343a40;
+        color: #fff;
+        text-align: center;
+    }
+    .order-detail-container .table tbody tr td {
+        text-align: center;
+    }
+    .order-detail-container .list-unstyled li {
+        font-size: 1.125rem;
+        margin-bottom: .5rem;
+    }
+    .order-detail-container .font-weight-bold {
+        font-weight: 700;
+    }
+</style>
+{% endblock %}

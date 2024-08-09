@@ -1,0 +1,66 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+{% block body %}
+<title>Wallet and Cancelled Orders</title>
+
+<link href="{% static 'css/bootstrap.css' %}" rel="stylesheet" type="text/css"/>
+<link href="{% static 'css/all.min.css' %}" type="text/css" rel="stylesheet">
+<link href="{% static 'css/ui.css' %}" rel="stylesheet" type="text/css"/>
+<link href="{% static 'css/responsive.css' %}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+
+<style>
+    .wallet-table th, .wallet-table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+    .wallet-table th {
+        background-color: #f8f9fa;
+    }
+    .wallet-table tbody tr {
+        border-bottom: 1px solid #dee2e6;
+    }
+    .wallet-table tbody tr:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<section class="section-content padding-y bg">
+    <div class="container">
+        <div class="row">
+            <aside class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Wallet Balance: ${{ wallet.balance }}</h5>
+                        <h5 class="card-title">Cancelled Orders</h5>
+                        <table class="table wallet-table">
+                            <thead class="text-muted">
+                                <tr class="small text-uppercase">
+                                    <th scope="col">Order ID</th>
+                                    <th scope="col">Product</th>
+                                    <th scope="col">Quantity</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Total Amount</th>
+                                    <th scope="col">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cancelled_order_items %}
+                                <tr>
+                                    <td>{{ item.order.id }}</td>
+                                    <td>{{ item.product.product_name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>$ {{ item.product.price }}</td>
+                                    <td>$ {{ item.total_price }}</td>
+                                    <td>{{ item.order.created_at }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

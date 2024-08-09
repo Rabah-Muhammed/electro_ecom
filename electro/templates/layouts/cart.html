@@ -21,109 +21,194 @@
 <script src="{% static 'js/script.js' %}" type="text/javascript"></script>
 
 <script type="text/javascript">
-$(document).ready(function() {
-    var maxQuantity = 5; // Set your maximum quantity here
-
-    // Function to toggle visibility based on cart items
-    function toggleCartVisibility() {
-        if ($('.cart-item').length === 0) {
-            $('#cart-empty-message').show();
-            $('#cart-content').hide();
-        } else {
-            $('#cart-empty-message').hide();
-            $('#cart-content').show();
+    $(document).ready(function() {
+        var maxQuantity = 5; // Set your maximum quantity here
+    
+        function toggleCartVisibility() {
+            if ($('.cart-item').length === 0) {
+                $('#cart-empty-message').show();
+                $('#cart-content').hide();
+            } else {
+                $('#cart-empty-message').hide();
+                $('#cart-content').show();
+            }
         }
-    }
+    
+        function updateTotals() {
+            var total = 0;
+            $('.cart-item').each(function() {
+                var price = parseFloat($(this).find('.price').data('price'));
+                var qty = parseInt($(this).find('.quantity').val());
+                total += price * qty;
+            });
+            var tax = (2 * total) / 100;
+            var grandTotal = total + tax;
+            $('#total').text('$' + total.toFixed(2));
+            $('#tax').text('$' + tax.toFixed(2));
+            $('#grand-total').text('$' + grandTotal.toFixed(2));
+            checkCouponVisibility(total);  // Check coupon visibility
+        }
+    
+        function checkCouponVisibility(total) {
+    $.ajax({
+        url: '/fetch_coupons/',
+        method: 'GET',
+        data: { 'total': total },
+        success: function(response) {
+            var coupons = response.coupons;
+            if (coupons.length > 0) {
+                $('#coupon-section').show();
+                var couponSelect = $('#available-coupons');
+                couponSelect.empty();
+                for (var i = 0; i < coupons.length; i++) {
+                    var option = $('<option>').val(coupons[i].code).text(coupons[i].code + ' - ' + coupons[i].discount + '% off');
+                    couponSelect.append(option);
+                }
+            } else {
+                $('#coupon-section').hide();
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to fetch coupons:', error);
+        }
+    });
+}
 
-    // Function to update totals
-    function updateTotals() {
-        var total = 0;
-        $('.cart-item').each(function() {
-            var price = parseFloat($(this).find('.price').text().replace('$', ''));
-            var qty = parseInt($(this).find('.quantity').val());
-            total += price * qty;
+    
+        function handleAjaxError(xhr, status, error) {
+            console.error('AJAX Error:', error);
+            alert('An error occurred. Please try again later.');
+        }
+    
+        function updateCartAndTotals() {
+            updateTotals();
+            toggleCartVisibility();
+        }
+    
+        $('.btn-add').click(function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
+            var currentQuantity = parseInt($('#quantity-' + productId).val());
+            if (currentQuantity < maxQuantity) {
+                $.ajax({
+                    url: '/add_cart/' + productId + '/',
+                    method: 'GET',
+                    success: function(response) {
+                        if (response.error) {
+                            alert(response.error);
+                        } else {
+                            $('#quantity-' + productId).val(response.Quantity);
+                            $('#subtotal-' + productId).text('$' + response.sub_total.toFixed(2));
+                            updateCartAndTotals();
+                        }
+                    },
+                    error: handleAjaxError
+                });
+            } else {
+                alert("Maximum quantity reached for this product.");
+            }
         });
-        var tax = (2 * total) / 100;
-        var grandTotal = total + tax;
-        $('#total').text('$' + total.toFixed(2));
-        $('#tax').text('$' + tax.toFixed(2));
-        $('#grand-total').text('$' + grandTotal.toFixed(2));
-    }
-
-    // Initial check on page load
-    toggleCartVisibility();
-    updateTotals();
-
-    // AJAX success handlers to update cart items and totals
-    function updateCartAndTotals() {
-        updateTotals();  // Update totals after any cart item change
-        toggleCartVisibility();
-    }
-
-    // Add item to cart AJAX call
-    $('.btn-add').click(function(e) {
-        e.preventDefault();
-        var productId = $(this).data('product-id');
-        var currentQuantity = parseInt($('#quantity-' + productId).val());
-        if (currentQuantity < maxQuantity) {
+    
+        $('.btn-remove').click(function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
             $.ajax({
-                url: '/add_cart/' + productId + '/',
+                url: '/remove_cart/' + productId + '/',
                 method: 'GET',
                 success: function(response) {
-                    if (response.error) {
-                        alert(response.error);
-                    } else {
+                    if (response.Quantity > 0) {
                         $('#quantity-' + productId).val(response.Quantity);
                         $('#subtotal-' + productId).text('$' + response.sub_total.toFixed(2));
-                        updateCartAndTotals();  // Update cart and totals after successful addition
+                    } else {
+                        $('#item-' + productId).remove();
                     }
-                }
+                    updateCartAndTotals();
+                },
+                error: handleAjaxError
             });
-        } else {
-            alert("Maximum quantity reached for this product.");
-        }
-    });
-
-    // Remove item from cart AJAX call
-    $('.btn-remove').click(function(e) {
-        e.preventDefault();
-        var productId = $(this).data('product-id');
-        $.ajax({
-            url: '/remove_cart/' + productId + '/',
-            method: 'GET',
-            success: function(response) {
-                if (response.Quantity > 0) {
-                    $('#quantity-' + productId).val(response.Quantity);
-                    $('#subtotal-' + productId).text('$' + response.sub_total.toFixed(2));
-                } else {
-                    $('#item-' + productId).remove();  // Remove entire row if quantity drops to zero
-                }
-                updateCartAndTotals();  // Update cart and totals after successful removal
-            },
-            error: function(xhr, status, error) {
-                console.error('Error removing product:', error);
-            }
         });
-    });
-
-    // Remove entire item from cart AJAX call
-    $('.btn-remove-item').click(function(e) {
-        e.preventDefault();
-        var productId = $(this).data('product-id');
-        $.ajax({
-            url: '/remove_cart_item/' + productId + '/',
-            method: 'GET',
-            success: function(response) {
-                $('#item-' + productId).remove();
-                updateCartAndTotals();  // Update cart and totals after removing item
-            },
-            error: function(xhr, status, error) {
-                console.error('Error removing product:', error);
-            }
+    
+        $('.btn-remove-item').click(function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
+            $.ajax({
+                url: '/remove_cart_item/' + productId + '/',
+                method: 'GET',
+                success: function(response) {
+                    $('#item-' + productId).remove();
+                    updateCartAndTotals();
+                },
+                error: handleAjaxError
+            });
         });
+    
+        $('#apply-coupon').click(function(e) {
+            e.preventDefault();
+            var couponCode = $('#coupon-code').val();
+            $.ajax({
+                url: '/apply_coupon/',
+                method: 'GET',
+                data: { 'code': couponCode },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#total').text('$' + response.total.toFixed(2));
+                        $('#discount').text('$' + response.discount.toFixed(2));
+                        $('#grand-total').text('$' + response.grand_total.toFixed(2));
+                        alert(response.message);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: handleAjaxError
+            });
+        });
+    
+        $('#remove-coupon').click(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/remove_coupon/',
+                method: 'GET',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#total').text('$' + response.total.toFixed(2));
+                        $('#discount').text('$' + response.discount.toFixed(2));
+                        $('#grand-total').text('$' + response.grand_total.toFixed(2));
+                        alert(response.message);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: handleAjaxError
+            });
+        });
+    
+        $('#apply-selected-coupon').click(function(e) {
+            e.preventDefault();
+            var couponCode = $('#available-coupons').val();
+            $.ajax({
+                url: '/apply_coupon/',
+                method: 'GET',
+                data: { 'code': couponCode },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $('#total').text('$' + response.total.toFixed(2));
+                        $('#discount').text('$' + response.discount.toFixed(2));
+                        $('#grand-total').text('$' + response.grand_total.toFixed(2));
+                        alert(response.message);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: handleAjaxError
+            });
+        });
+    
+        // Initial call to update totals and coupon visibility
+        updateTotals();
     });
-});
-</script>
+    </script>
+    
+    
 
 <section class="section-content padding-y bg">
 <div class="container">
@@ -132,7 +217,7 @@ $(document).ready(function() {
     <h2 class="text-center">Your Shopping Cart Is Empty</h2>
     <br>
     <div class="text-center">
-        <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
+        <a href="{% url 'products' %}" class="btn btn-primary">Continue Shopping</a>
     </div>
 </div>
 
@@ -166,21 +251,21 @@ $(document).ready(function() {
                                             <div class="input-group-prepend">
                                                 <button class="btn btn-light btn-remove" data-product-id="{{ cart_item.product.id }}" type="button" id="button-minus"> <i class="fa fa-minus"></i> </button>
                                             </div>
-                                            <input type="text" class="form-control quantity" id="quantity-{{ cart_item.product.id }}" value="{{ cart_item.Quantity }}" readonly>
+                                            <input type="text" class="form-control quantity" id="quantity-{{ cart_item.product.id }}" value="{{ cart_item.Quantity }}">
                                             <div class="input-group-append">
                                                 <button class="btn btn-light btn-add" data-product-id="{{ cart_item.product.id }}" type="button" id="button-plus"> <i class="fa fa-plus"></i> </button>
                                             </div>
-                                        </div>
-                                    </div>
+                                        </div> <!-- input-group.// -->
+                                    </div> <!-- col.// -->
                                 </td>
-                                <td> 
+                                <td>
                                     <div class="price-wrap"> 
-                                        <var class="price" id="subtotal-{{ cart_item.product.id }}">$ {{ cart_item.sub_total }}</var> 
-                                        <small class="text-muted">$ {{ cart_item.product.price }}</small>  
-                                    </div>
+                                        <var class="price" id="subtotal-{{ cart_item.product.id }}" data-price="{{ cart_item.product.price }}">{{ cart_item.sub_total }}</var> 
+                                        <small class="text-muted"> each: ${{ cart_item.product.price }} </small> 
+                                    </div> <!-- price-wrap .// -->
                                 </td>
-                                <td class="text-right"> 
-                                    <button class="btn btn-danger btn-remove-item" data-product-id="{{ cart_item.product.id }}">Remove</button>
+                                <td class="text-right">
+                                    <a href="#" class="btn btn-danger btn-remove-item" data-product-id="{{ cart_item.product.id }}"> Remove</a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -193,28 +278,39 @@ $(document).ready(function() {
                 <div class="card-body">
                     <dl class="dlist-align">
                         <dt>Total price:</dt>
-                        <dd class="text-right" id="total">${{total}}</dd>
+                        <dd class="text-right" id="total">${{ total }}</dd>
+                    </dl>
+                    <dl class="dlist-align">
+                        <dt>Discount:</dt>
+                        <dd class="text-right" id="discount">${{ discount }}</dd>
                     </dl>
                     <dl class="dlist-align">
                         <dt>Tax:</dt>
-                        <dd class="text-right" id="tax"> ${{tax}}</dd>
+                        <dd class="text-right" id="tax">${{ tax }}</dd>
                     </dl>
                     <dl class="dlist-align">
                         <dt>Grand Total:</dt>
-                        <dd class="text-right text-dark b"><strong id="grand-total">${{grand_total}}</strong></dd>
+                        <dd class="text-right h5"><strong id="grand-total">${{ grand_total }}</strong></dd>
                     </dl>
                     <hr>
+                    <div id="coupon-section" class="form-group" {% if available_coupons|length == 0 %}style="display: none;"{% endif %}>
+                        <label for="available-coupons">Available Coupons</label>
+                        <select class="form-control" id="available-coupons">
+                            {% for coupon in available_coupons %}
+                                <option value="{{ coupon.code }}">{{ coupon.code }} - {{ coupon.discount }}% off</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn btn-primary mt-2" id="apply-selected-coupon">Apply Selected Coupon</button>
+                        <button class="btn btn-secondary mt-2" id="remove-coupon">Remove Coupon</button>
+                    </div>
                     <p class="text-center mb-3">
-                        <img src="{% static 'images/resources/payments.png' %}" height="26">
+                        <a href="{% url 'checkout' %}" class="btn btn-warning">Proceed To Checkout</a>
                     </p>
-                    <a href="#" class="btn btn-primary btn-block"> Checkout </a>
-                    <a href="{% url 'home' %}" class="btn btn-light btn-block">Continue Shopping</a>
                 </div>
             </div>
         </aside>
     </div>
 </div>
-
 </div>
 </section>
 

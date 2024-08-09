@@ -1,0 +1,16 @@
+<!-- add_brand.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Brand</title>
+</head>
+<body>
+    <h1>Add Brand</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Brand</button>
+    </form>
+</body>
+</html>

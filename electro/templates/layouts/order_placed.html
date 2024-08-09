@@ -1,0 +1,71 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+{% block body %}
+<title>Order Placed</title>
+
+<section class="section-content padding-y bg">
+    <div class="container text-center">
+        <h2 class="mb-4 mt-4">Order Placed Successfully!</h2>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm" style="min-height: 300px;">
+                    <div class="card-body">
+                        <div class="animation-container" style="margin-left: 230px;">
+                            <div class="coin"></div>
+                            <div class="coin"></div>
+                            <div class="coin"></div>
+                            <div class="coin"></div>
+                            <div class="coin"></div>
+                        </div>
+                        <h4 class="mt-4">Thank you for your purchase!</h4>
+                        <p class="product-name">Product: 
+                            {% for item in order.orderitem_set.all %}
+                                {{ item.product.name }} ({{ item.quantity }}{% if not forloop.last %}, {% endif %})
+                            {% endfor %}
+                        </p>
+                        <p class="total-amount">Total Amount: ${{ order.total_amount }}</p>
+                        <a href="{% url 'order_history' %}" class="btn btn-primary mt-3">View Order History</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .card {
+        margin-top: 20px;
+    }
+    .card-body {
+        padding: 30px;
+    }
+    .animation-container {
+        position: relative;
+        height: 100px;
+        margin-top: 20px;
+    }
+    .coin {
+        width: 30px;
+        height: 30px;
+        background: gold;
+        border-radius: 50%;
+        position: absolute;
+        bottom: 0;
+        animation: spread 1s infinite;
+    }
+    .coin:nth-child(2) { left: 40px; animation-delay: 0.2s; }
+    .coin:nth-child(3) { left: 80px; animation-delay: 0.4s; }
+    .coin:nth-child(4) { left: 120px; animation-delay: 0.6s; }
+    .coin:nth-child(5) { left: 160px; animation-delay: 0.8s; }
+
+    @keyframes spread {
+        0%, 100% { bottom: 0; transform: translateY(0) scale(1); }
+        50% { bottom: 100px; transform: translateY(-20px) scale(1.2); }
+    }
+
+    .product-name, .total-amount {
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}

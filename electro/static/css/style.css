@@ -1382,3 +1382,50 @@ transition:0.5s ease;}
   .sp-wrap.org .product-thumb{min-height: 13rem;}
   .contact-box{margin-bottom:20px;}
 
+  .filter-sort-wrap {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-item {
+    margin-bottom: 1rem;
+}
+
+.form-select {
+    border-radius: 0.25rem;
+    border-color: #ced4da;
+}
+
+.btn-dark {
+    background-color: #343a40;
+    color: #fff;
+    border-color: #343a40;
+}
+
+.btn-dark:hover {
+    background-color: #23272b;
+    border-color: #1d2124;
+}
+
+.product-thumb img {
+    border-radius: 0.5rem;
+}
+
+.product-body .brand-name {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.product-body .product-name {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #212529;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #212529;
+}

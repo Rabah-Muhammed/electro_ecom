@@ -15,7 +15,7 @@
 
     .page-content {
         padding: 20px;
-        position: relative; /* Ensure relative positioning for absolute elements */
+        position: relative;
     }
 
     .form-container {
@@ -81,7 +81,67 @@
         font-size: 14px;
         margin-top: 5px;
     }
+
+    .image-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .image-preview div {
+        display: flex;
+        align-items: center;
+    }
+
+    .image-preview img {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-right: 10px;
+    }
+
+    .image-preview a {
+        color: #007bff;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .image-preview a:hover {
+        text-decoration: underline;
+    }
+
+    .image-path {
+        font-size: 14px;
+        color: #f8f9fa;
+    }
+
+    .main-image-preview {
+        margin-top: 10px;
+    }
+
+    .main-image-preview img {
+        max-width: 200px;
+        max-height: 200px;
+    }
+
+    #cropperContainer {
+        display: none;
+        position: relative;
+    }
+
+    #cropperImage {
+        max-width: 100%;
+    }
 </style>
+
+<!-- Include Cropper.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
+<!-- Include Cropper.js JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
 <div class="page-content">
     <div class="page-header">
@@ -90,45 +150,12 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const productNameInput = document.getElementById('id_product_name');
-            const slugInput = document.getElementById('id_slug');
-            const priceInput = document.getElementById('id_price');
-            const stockInput = document.getElementById('id_stock');
-
-            productNameInput.addEventListener('input', function() {
-                const productName = productNameInput.value;
-                const slug = slugify(productName);
-                slugInput.value = slug;
-            });
-
-            priceInput.addEventListener('input', function() {
-                if (priceInput.value < 0) {
-                    priceInput.value = ''; // Clear input if negative number entered
-                }
-            });
-
-            stockInput.addEventListener('input', function() {
-                if (stockInput.value < 0) {
-                    stockInput.value = ''; // Clear input if negative number entered
-                }
-            });
-
-            function slugify(text) {
-                return text.toString().toLowerCase()
-                    .replace(/\s+/g, '-')        // Replace spaces with -
-                    .replace(/[^\w\-]+/g, '')   // Remove all non-word chars
-                    .replace(/\-\-+/g, '-')      // Replace multiple - with single -
-                    .replace(/^-+/, '')          // Trim - from start of text
-                    .replace(/-+$/, '');         // Trim - from end of text
-            }
-        });
-    </script>
-
     <div class="form-container">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
+            {{ form.non_field_errors }}
+            
+            <!-- Product Name Field -->
             <div class="form-group">
                 <label for="id_product_name">Product Name</label>
                 {{ form.product_name }}
@@ -137,6 +164,7 @@
                 {% endif %}
             </div>
 
+            <!-- Slug Field -->
             <div class="form-group">
                 <label for="id_slug">Slug</label>
                 {{ form.slug }}
@@ -145,6 +173,7 @@
                 {% endif %}
             </div>
 
+            <!-- Price Field -->
             <div class="form-group">
                 <label for="id_price">Price</label>
                 {{ form.price }}
@@ -153,6 +182,7 @@
                 {% endif %}
             </div>
 
+            <!-- Stock Field -->
             <div class="form-group">
                 <label for="id_stock">Stock</label>
                 {{ form.stock }}
@@ -161,6 +191,7 @@
                 {% endif %}
             </div>
 
+            <!-- Description Field -->
             <div class="form-group">
                 <label for="id_description">Description</label>
                 {{ form.description }}
@@ -169,6 +200,7 @@
                 {% endif %}
             </div>
 
+            <!-- Category Field -->
             <div class="form-group">
                 <label for="id_category">Category</label>
                 {{ form.category }}
@@ -177,30 +209,45 @@
                 {% endif %}
             </div>
 
+            <!-- Brand Field -->
             <div class="form-group">
-                <label for="id_images">Images</label>
-                {{ form.images }}
-                {% if form.images.errors %}
-                    <p class="error">{{ form.images.errors }}</p>
+                <label for="id_brand">Brand</label>
+                {{ form.brand }}
+                {% if form.brand.errors %}
+                    <p class="error">{{ form.brand.errors }}</p>
                 {% endif %}
             </div>
 
+            <!-- Main Image Field -->
             <div class="form-group">
-                <label for="id_image1">Image 1</label>
-                {{ form.image1 }}
-                {% if form.image1.errors %}
-                    <p class="error">{{ form.image1.errors }}</p>
+                <label for="id_images">Main Image</label>
+                <input type="file" name="images" id="id_images">
+                <div class="main-image-preview" id="mainImagePreview">
+                    <!-- Container for cropper.js -->
+                    <div id="cropperContainer">
+                        <img id="cropperImage" src="" alt="Image for cropping">
+                        <button type="button" id="cropImageButton" class="btn btn-primary">Crop & Upload</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gallery Images Field -->
+            <div class="form-group">
+                <label for="id_gallery_images">Gallery Images</label>
+                <input type="file" name="gallery_images" id="id_gallery_images" multiple>
+                <div class="image-preview" id="galleryImagePreview"></div>
+            </div>
+
+            <!-- Offer Percentage Field -->
+            <div class="form-group">
+                <label for="id_offer_percentage">Offer Percentage</label>
+                {{ form.offer_percentage }}
+                {% if form.offer_percentage.errors %}
+                    <p class="error">{{ form.offer_percentage.errors }}</p>
                 {% endif %}
             </div>
 
-            <div class="form-group">
-                <label for="id_image2">Image 2</label>
-                {{ form.image2 }}
-                {% if form.image2.errors %}
-                    <p class="error">{{ form.image2.errors }}</p>
-                {% endif %}
-            </div>
-
+            <!-- Is Available Field -->
             <div class="form-group">
                 <label for="id_is_available">Is Available</label>
                 {{ form.is_available }}
@@ -209,6 +256,25 @@
                 {% endif %}
             </div>
 
+            <!-- Is Deleted Field -->
+            <div class="form-group">
+                <label for="id_is_deleted">Is Deleted</label>
+                {{ form.is_deleted }}
+                {% if form.is_deleted.errors %}
+                    <p class="error">{{ form.is_deleted.errors }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Is Featured Field -->
+            <div class="form-group">
+                <label for="id_is_featured">Is Featured</label>
+                {{ form.is_featured }}
+                {% if form.is_featured.errors %}
+                    <p class="error">{{ form.is_featured.errors }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Submit and Cancel Buttons -->
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">Add Product</button>
                 <a href="{% url 'productlist' %}" class="btn btn-secondary">Cancel</a>
@@ -216,5 +282,105 @@
         </form>
     </div>
 </div>
+
+<script>
+    let cropper;
+    const cropperContainer = document.getElementById('cropperContainer');
+    const cropperImage = document.getElementById('cropperImage');
+    const mainImageInput = document.getElementById('id_images');
+
+    mainImageInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Show the cropper container
+                cropperContainer.style.display = 'block';
+                cropperImage.src = e.target.result;
+
+                // Initialize cropper.js
+                if (cropper) {
+                    cropper.destroy();
+                }
+                cropper = new Cropper(cropperImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('cropImageButton').addEventListener('click', function() {
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas();
+            canvas.toBlob((blob) => {
+                const file = new File([blob], 'cropped-image.jpg', {
+                    type: 'image/jpeg',
+                    lastModified: Date.now(),
+                });
+
+                // Create a new DataTransfer object to set the file
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                mainImageInput.files = dataTransfer.files;
+
+                // Hide the cropper container
+                cropperContainer.style.display = 'none';
+
+                // Optionally, you can preview the cropped image
+                const previewImg = document.createElement('img');
+                previewImg.src = URL.createObjectURL(file);
+                document.getElementById('mainImagePreview').appendChild(previewImg);
+
+                // Clear the cropper instance
+                cropper.destroy();
+                cropper = null;
+            });
+        }
+    });
+
+    // Handle gallery images preview
+    document.getElementById('id_gallery_images').addEventListener('change', function(event) {
+        handleFileInput(event, true);
+    });
+
+    function handleFileInput(event, isGallery) {
+        const files = event.target.files;
+        const previewContainer = isGallery ? document.getElementById('galleryImagePreview') : document.getElementById('mainImagePreview');
+        previewContainer.innerHTML = ''; // Clear existing preview
+
+        Array.from(files).forEach(file => {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    previewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Handle slug auto-update based on product name
+    document.getElementById('id_product_name').addEventListener('input', function(event) {
+        const productName = event.target.value;
+        const slug = productName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+        document.getElementById('id_slug').value = slug;
+    });
+
+    // Ensure positive values for price and stock
+    function validatePositiveNumber(event) {
+        const value = parseFloat(event.target.value);
+        if (isNaN(value) || value <= 0) {
+            event.target.value = '';
+        }
+    }
+
+    document.getElementById('id_price').addEventListener('input', validatePositiveNumber);
+    document.getElementById('id_stock').addEventListener('input', validatePositiveNumber);
+</script>
 
 {% endblock %}

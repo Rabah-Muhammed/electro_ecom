@@ -1,0 +1,72 @@
+{% extends 'layouts/main.html' %}
+{% block body %}
+<title>Invoice for Order {{ order.id }}</title>
+
+<section class="section-content padding-y bg-light">
+    <div class="container">
+        <div class="text-center mb-4 mt-4">
+            <h2>Invoice for Order {{ order.id }}</h2>
+            <p class="lead">Thank you for your purchase! Below is the detailed invoice for your order.</p>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h4>Order Details</h4>
+                        <p><strong>User:</strong> {{ order.user.username }}</p>
+                        <p><strong>Total Amount:</strong> ${{ order.total_amount }}</p>
+                        <p><strong>Status:</strong> {{ order.status }}</p>
+                        <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+                        <p><strong>Date & Time:</strong> {{ order.created_at|date:"Y-m-d H:i" }}</p>
+                        <p><strong>Payment Method:</strong> {{ payment_method }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Applied Discounts</h4>
+                        {% if order.coupon_amount > 0 %}
+                            <p><strong>Coupon Code:</strong> {{ order.coupon.code }}</p>
+                            <p><strong>Coupon Amount:</strong> ${{ order.coupon_amount }}</p>
+                        {% else %}
+                            <p>No coupon applied</p>
+                        {% endif %}
+                        {% if order.discount_amount > 0 %}
+                            <p><strong>Discount Amount:</strong> ${{ order.discount_amount }}</p>
+                        {% endif %}
+                        {% if order.user.wallet.balance > 0 %}
+                            <p><strong>Wallet Balance:</strong> ${{ order.user.wallet.balance }}</p>
+                        {% else %}
+                            <p>No wallet balance available</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h5 class="mt-4 mb-3">Products:</h5>
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order_items %}
+                        <tr>
+                            <td>{{ item.product.product_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>${{ item.product.price }}</td>
+                            <td>${{ item.subtotal }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="text-end mt-4">
+                    <h5><strong>Total Amount Payable:</strong> ${{ order.total_amount }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

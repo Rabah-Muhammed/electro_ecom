@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
-from decouple import config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'imagekit',
     'accounts',
     'carts',
+    'widget_tweaks',
     
    
     
@@ -57,7 +58,8 @@ INSTALLED_APPS = [
 ]
 
 
-
+USE_TZ = True
+TIME_ZONE = 'Asia/Kolkata'
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -79,6 +81,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
+    
 ]
 
 ROOT_URLCONF = 'electro.urls'
@@ -95,7 +98,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'category.context_processors.menu_links',
-                'django.template.context_processors.request',
                 'carts.context_processors.counter',
             ],
         },
@@ -178,15 +180,13 @@ MEDIA_ROOT = BASE_DIR/'static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL ='home'
-ACCOUNT_LOGOUT_REDIRECT_URL ='login'
+LOGIN_REDIRECT_URL ='/'
+ACCOUNT_LOGOUT_REDIRECT_URL ='/'
 
-
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        'CLIENT_ID': config('GOOGLE_CLIENT_ID'),
-        'SECRET_KEY': config('GOOGLE_CLIENT_SECRET'),
         'SCOPE': [
             'profile',
             'email',

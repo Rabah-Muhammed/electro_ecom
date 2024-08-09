@@ -1,0 +1,55 @@
+{% extends 'ahome.html' %}
+
+{% load static %}
+
+{% block body %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Delete</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #2d3035;
+            color: white;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .btn-custom {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-custom:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .btn-link {
+            color: #17a2b8;
+        }
+        .btn-link:hover {
+            color: #138496;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Are you sure you want to delete "{{ object.name }}"?</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-custom">Confirm Delete</button>
+        </form>
+
+        <br>
+        <a href="{% url 'offer_list' %}" class="btn btn-link">Cancel</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
+{% endblock %}

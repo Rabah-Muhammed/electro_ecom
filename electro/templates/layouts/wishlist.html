@@ -1,0 +1,63 @@
+{% extends 'layouts/main.html' %}
+
+{% load static %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2 class="mb-4">Your Wishlist</h2>
+    {% if wishlist_items %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in wishlist_items %}
+                        <tr>
+                            <td>
+                                <img src="{{ item.product.images.url }}" alt="{{ item.product.product_name }}" class="img-fluid" style="max-width: 100px; height: auto;">
+                            </td>
+                            <td>
+                                <a href="{{ item.product.get_url }}" class="text-dark">{{ item.product.product_name }}</a>
+                            </td>
+                            <td>${{ item.product.price }}</td>
+                            <td>{{ item.product.stock }}</td>  <!-- Display stock -->
+                            <td>
+                                <a href="{% url 'add_cart' item.product.id %}" class="btn btn-primary btn-sm">Add to Cart</a>
+                                <a href="{% url 'remove_from_wishlist' item.product.id %}" class="btn btn-danger btn-sm">Remove</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            Your wishlist is empty.
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa; /* Light grey on hover */
+    }
+
+    .table th, .table td {
+        vertical-align: middle; /* Center align content */
+    }
+
+    .btn {
+        margin-right: 5px; /* Space between buttons */
+    }
+</style>
+<br>
+<br>
+<br>
+{% endblock %}

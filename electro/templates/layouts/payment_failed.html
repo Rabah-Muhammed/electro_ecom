@@ -1,0 +1,52 @@
+{% extends 'layouts/main.html' %}
+{% load static %}
+{% block body %}
+<title>Payment Failed</title>
+
+<section class="section-content padding-y bg-light" style="height: 100vh; display: flex; justify-content: center; align-items: center;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center mb-5">
+                <img src="{% static 'images/payment-failed.png' %}" alt="Payment Failed" class="img-fluid" style="max-width: 300px; margin-bottom: 20px;">
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8 mx-auto">
+                <div class="card border-0 shadow-lg" style="padding: 40px;">
+                    <div class="card-body text-center">
+                        <h1 class="card-title font-weight-bold" style="font-size: 36px; margin-bottom: 20px;">Payment Failed</h1>
+                        <p class="text-muted" style="font-size: 18px; margin-bottom: 30px;">Unfortunately, your payment could not be processed. Please try again or contact our support team for assistance.</p>
+                        <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg mt-3" style="padding: 15px 30px; font-size: 18px;">Retry Payment</a>
+                        <a href="{% url 'home' %}" class="btn btn-secondary btn-lg mt-3" style="padding: 15px 30px; font-size: 18px;">Return Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .section-content {
+        background-image: linear-gradient(to bottom, #f7f7f7, #fff);
+    }
+    .card {
+        border-radius: 10px;
+    }
+    .card-body {
+        padding: 40px;
+    }
+    .btn {
+        border-radius: 10px;
+        font-weight: bold;
+    }
+    .btn-primary {
+        background-color: #337ab7;
+        border-color: #337ab7;
+    }
+    .btn-secondary {
+        background-color: #666;
+        border-color: #666;
+    }
+</style>
+
+{% endblock %}
