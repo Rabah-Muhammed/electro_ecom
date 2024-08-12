@@ -266,6 +266,7 @@ def login(request):
 
     return render(request, 'layouts/login.html')
 
+
 @cache_control(no_cache=True,must_revalidate=True,no_store=True)  
 def logout(request):
     logout_page(request)

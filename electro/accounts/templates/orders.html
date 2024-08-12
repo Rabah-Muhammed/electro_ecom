@@ -10,8 +10,8 @@
         <h2 class="text-center mb-0 mt-0">Order History</h2>
         
         <div class="row justify-content-center">
-            <div class="col-md-15"> <!-- Adjust the width here -->
-                <div class="card shadow-sm" style="min-height: 500px;"> <!-- Increase height here -->
+            <div class="col-md-15">
+                <div class="card shadow-sm" style="min-height: 500px;">
                     <div class="card-body">
                         <table class="table table-hover table-responsive-sm">
                             <thead class="thead-dark">
@@ -36,8 +36,8 @@
                                     </td>
                                     <td>${{ order.total_amount }}</td>
                                     <td>{{ order.status }}</td>
-                                    <td>{{ order.created_at|date:"Y-m-d H:i" }}</td> <!-- Date and Time -->
-                                    <td>{{ order.delivery_address }}</td> <!-- Delivery Address -->
+                                    <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>{{ order.delivery_address }}</td>
                                     <td>
                                         {% if order.status == 'Pending' %}
                                             <a href="{% url 'cancel_order' order.id %}" class="btn btn-danger btn-sm">Cancel</a>
@@ -47,6 +47,36 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+
+                        <!-- Pagination Controls -->
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center mt-3">
+                                {% if orders.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ orders.previous_page_number }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in orders.paginator.page_range %}
+                                    {% if orders.number == num %}
+                                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if orders.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ orders.next_page_number }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+
                     </div>
                 </div>
             </div>
@@ -67,6 +97,10 @@
     .thead-dark th {
         background-color: #343a40;
         color: white;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #343a40;
+        border-color: #343a40;
     }
 </style>
 {% endblock %}

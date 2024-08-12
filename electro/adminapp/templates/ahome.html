@@ -220,20 +220,20 @@
               background-color: #2d3035;
               color: white;
           }
-
+      
           .container {
               padding: 20px;
           }
-
+      
           .filter {
               margin-bottom: 20px;
           }
-
+      
           .filter label {
               color: white;
               margin-right: 10px;
           }
-
+      
           .filter select,
           .filter input[type="date"] {
               background-color: #343a40;
@@ -243,33 +243,60 @@
               border-radius: 5px;
               margin-right: 10px;
           }
-
+      
+          .filter button {
+              background-color: #007bff;
+              color: white;
+              border: none;
+              padding: 5px 10px;
+              border-radius: 5px;
+              cursor: pointer;
+          }
+      
+          .filter button:hover {
+              background-color: #0056b3;
+          }
+      
           .charts {
               margin-bottom: 20px;
           }
-
+      
           .chart-container {
               margin-bottom: 20px;
               position: relative;
               height: 400px;
           }
-
+      
+          .chart-row {
+              display: flex;
+              justify-content: space-between;
+          }
+      
+          .chart-half {
+              flex: 1;
+              margin-right: 10px;
+          }
+      
+          .chart-half:last-child {
+              margin-right: 0;
+          }
+      
           .summary {
               margin-top: 20px;
               padding: 20px;
               background-color: #343a40;
               border-radius: 5px;
           }
-
+      
           .summary p {
               margin: 10px 0;
           }
-
+      
           .summary h2 {
               margin-bottom: 20px;
           }
       </style>
-
+      
       <div class="container">
           <h3>Admin Dashboard</h3>
           <br>
@@ -280,178 +307,280 @@
                   <option value="monthly">Monthly</option>
                   <option value="yearly">Yearly</option>
               </select>
-              
+      
               <!-- Date Range Filter -->
               <label for="start_date">Start Date:</label>
               <input type="date" id="start_date" name="start_date">
-
+      
               <label for="end_date">End Date:</label>
               <input type="date" id="end_date" name="end_date">
-              
+      
               <button id="apply-filters">Apply Filters</button>
           </div>
-
+      
           <!-- Charts Section -->
           <div class="charts">
+              <!-- Row for Total Orders and Most Sold Categories Charts -->
+              <div class="chart-row">
+                  <!-- Total Orders Chart -->
+                  <div class="chart-half">
+                      <div class="chart-container">
+                          <canvas id="ordersChart"></canvas>
+                      </div>
+                  </div>
+                  <!-- Most Sold Categories Chart -->
+                  <div class="chart-half">
+                      <div class="chart-container">
+                          <canvas id="categoryChart"></canvas>
+                      </div>
+                  </div>
+              </div>
+      
               <!-- Sales Chart -->
               <div class="chart-container">
                   <canvas id="salesChart"></canvas>
               </div>
-              <!-- Orders Chart -->
-              <div class="chart-container">
-                  <canvas id="ordersChart"></canvas>
-              </div>
           </div>
-
+      
           <!-- Ledger Book -->
           <br>
           <h4>Generate Ledger Book</h4>
           <form method="get" action="{% url 'ledger_book' %}">
-              <label for="start_date">Start Date:</label>
+              <label for="ledger_start_date">Start Date:</label>
               <input type="date" id="ledger_start_date" name="start_date" required>
-              
-              <label for="end_date">End Date:</label>
+      
+              <label for="ledger_end_date">End Date:</label>
               <input type="date" id="ledger_end_date" name="end_date" required>
-              
+      
               <button type="submit">Generate Ledger Book</button>
           </form>
       </div>
-
+      
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script>
-          const ctxSales = document.getElementById('salesChart').getContext('2d');
-          const salesChart = new Chart(ctxSales, {
-              type: 'line',
-              data: {
-                  labels: [],
-                  datasets: [{
-                      label: 'Total Sales',
-                      data: [],
-                      backgroundColor: 'rgba(75, 192, 192, 0.3)',
-                      borderColor: 'rgba(75, 192, 192, 1)',
-                      borderWidth: 2,
-                      pointBackgroundColor: 'rgba(75, 192, 192, 1)',
-                      pointRadius: 5
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                      x: {
-                          beginAtZero: true,
-                          title: {
-                              display: true,
-                              text: 'Date',
-                              color: '#ffffff'
-                          },
-                          grid: {
-                              color: 'rgba(255, 255, 255, 0.1)'
-                          }
-                      },
-                      y: {
-                          beginAtZero: true,
-                          title: {
-                              display: true,
-                              text: 'Amount',
-                              color: '#ffffff'
-                          },
-                          grid: {
-                              color: 'rgba(255, 255, 255, 0.1)'
-                          }
-                      }
+          let ordersChart, categoryChart, salesChart; // Declare chart variables globally
+      
+          function initializeCharts(data) {
+              const ctxOrders = document.getElementById('ordersChart').getContext('2d');
+              ordersChart = new Chart(ctxOrders, {
+                  type: 'bar',
+                  data: {
+                      labels: data.orders_labels,
+                      datasets: [{
+                          label: 'Total Orders',
+                          data: data.orders_data,
+                          backgroundColor: 'rgba(153, 102, 255, 0.3)',
+                          borderColor: 'rgba(153, 102, 255, 1)',
+                          borderWidth: 2,
+                      }]
                   },
-                  plugins: {
-                      legend: {
-                          labels: {
-                              color: '#ffffff'
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                          x: {
+                              beginAtZero: true,
+                              title: {
+                                  display: true,
+                                  text: 'Date',
+                                  color: '#ffffff'
+                              },
+                              grid: {
+                                  color: 'rgba(255, 255, 255, 0.1)'
+                              }
+                          },
+                          y: {
+                              beginAtZero: true,
+                              title: {
+                                  display: true,
+                                  text: 'Orders',
+                                  color: '#ffffff'
+                              },
+                              grid: {
+                                  color: 'rgba(255, 255, 255, 0.1)'
+                              }
                           }
                       },
-                      tooltip: {
-                          backgroundColor: '#333333'
+                      plugins: {
+                          legend: {
+                              labels: {
+                                  color: '#ffffff'
+                              }
+                          },
+                          tooltip: {
+                              backgroundColor: '#333333'
+                          }
                       }
                   }
-              }
-          });
-
-          const ctxOrders = document.getElementById('ordersChart').getContext('2d');
-          const ordersChart = new Chart(ctxOrders, {
-              type: 'bar',
-              data: {
-                  labels: [],
-                  datasets: [{
-                      label: 'Total Orders',
-                      data: [],
-                      backgroundColor: 'rgba(153, 102, 255, 0.3)',
-                      borderColor: 'rgba(153, 102, 255, 1)',
-                      borderWidth: 2,
-                  }]
-              },
-              options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                      x: {
-                          beginAtZero: true,
-                          title: {
-                              display: true,
-                              text: 'Date',
-                              color: '#ffffff'
-                          },
-                          grid: {
-                              color: 'rgba(255, 255, 255, 0.1)'
-                          }
-                      },
-                      y: {
-                          beginAtZero: true,
-                          title: {
-                              display: true,
-                              text: 'Orders',
-                              color: '#ffffff'
-                          },
-                          grid: {
-                              color: 'rgba(255, 255, 255, 0.1)'
-                          }
-                      }
+              });
+      
+              const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+              categoryChart = new Chart(ctxCategory, {
+                  type: 'pie',
+                  data: {
+                      labels: data.category_labels,
+                      datasets: [{
+                          label: 'Most Sold Categories',
+                          data: data.category_data,
+                          backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                          borderWidth: 1
+                      }]
                   },
-                  plugins: {
-                      legend: {
-                          labels: {
-                              color: '#ffffff'
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                          legend: {
+                              labels: {
+                                  color: '#ffffff'
+                              }
                           }
-                      },
-                      tooltip: {
-                          backgroundColor: '#333333'
                       }
                   }
-              }
-          });
-
-          document.getElementById('apply-filters').addEventListener('click', function() {
-              const reportType = document.getElementById('report-type').value;
-              const startDate = document.getElementById('start_date').value;
-              const endDate = document.getElementById('end_date').value;
-
-              fetch(`/admin_dashboard/?report_type=${reportType}&start_date=${startDate}&end_date=${endDate}`, {
-                  headers: { 'X-Requested-With': 'XMLHttpRequest' }
-              })
-              .then(response => response.json())
-              .then(data => {
-                  salesChart.data.labels = data.sales_labels;
-                  salesChart.data.datasets[0].data = data.sales_data;
-                  salesChart.update();
-
+              });
+      
+              const ctxSales = document.getElementById('salesChart').getContext('2d');
+              salesChart = new Chart(ctxSales, {
+                  type: 'line',
+                  data: {
+                      labels: data.sales_labels,
+                      datasets: [{
+                          label: 'Total Sales',
+                          data: data.sales_data,
+                          backgroundColor: 'rgba(75, 192, 192, 0.3)',
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          borderWidth: 2,
+                          pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                          pointRadius: 5
+                      }]
+                  },
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                          x: {
+                              beginAtZero: true,
+                              title: {
+                                  display: true,
+                                  text: 'Date',
+                                  color: '#ffffff'
+                              },
+                              grid: {
+                                  color: 'rgba(255, 255, 255, 0.1)'
+                              }
+                          },
+                          y: {
+                              beginAtZero: true,
+                              title: {
+                                  display: true,
+                                  text: 'Amount',
+                                  color: '#ffffff'
+                              },
+                              grid: {
+                                  color: 'rgba(255, 255, 255, 0.1)'
+                              }
+                          }
+                      },
+                      plugins: {
+                          legend: {
+                              labels: {
+                                  color: '#ffffff'
+                              }
+                          },
+                          tooltip: {
+                              backgroundColor: '#333333'
+                          }
+                      }
+                  }
+              });
+          }
+      
+          function updateCharts(data) {
+              if (ordersChart) {
                   ordersChart.data.labels = data.orders_labels;
                   ordersChart.data.datasets[0].data = data.orders_data;
                   ordersChart.update();
-              });
-          });
+              }
+              if (categoryChart) {
+                  categoryChart.data.labels = data.category_labels;
+                  categoryChart.data.datasets[0].data = data.category_data;
+                  categoryChart.update();
+              }
+              if (salesChart) {
+                  salesChart.data.labels = data.sales_labels;
+                  salesChart.data.datasets[0].data = data.sales_data;
+                  salesChart.update();
+              }
+          }
+      
+          document.addEventListener('DOMContentLoaded', function() {
+    fetchChartsData();
 
-          document.getElementById('report-type').dispatchEvent(new Event('change'));
+    document.getElementById('apply-filters').addEventListener('click', function() {
+        fetchChartsData();
+    });
+
+    function fetchChartsData() {
+        const reportType = document.getElementById('report-type').value;
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+
+        console.log(`Fetching data for reportType=${reportType}, startDate=${startDate}, endDate=${endDate}`); // Debug logging
+
+        fetch(`/admin_dashboard/?report_type=${reportType}&start_date=${startDate}&end_date=${endDate}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (ordersChart && categoryChart && salesChart) {
+                updateCharts(data);
+            } else {
+                initializeCharts(data);
+            }
+        })
+        .catch(error => console.error('Error fetching data:', error)); // Error handling
+    }
+
+    // Initialize date pickers with available dates
+    function updateDatePickers() {
+        fetch('/api/get_available_order_dates/')
+            .then(response => response.json())
+            .then(data => {
+                const { min_date, max_date } = data;
+
+                const startDatePicker = document.getElementById('start_date');
+                const endDatePicker = document.getElementById('end_date');
+                
+                // Set min and max values for the date pickers
+                startDatePicker.min = min_date;
+                startDatePicker.max = max_date;
+                endDatePicker.min = min_date;
+                endDatePicker.max = max_date;
+
+                // Ensure end date is not before start date
+                startDatePicker.addEventListener('change', function() {
+                    endDatePicker.min = this.value;
+                    if (new Date(endDatePicker.value) < new Date(this.value)) {
+                        endDatePicker.value = this.value;
+                    }
+                });
+
+                endDatePicker.addEventListener('change', function() {
+                    if (new Date(this.value) < new Date(startDatePicker.value)) {
+                        this.value = startDatePicker.value;
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching available dates:', error));
+    }
+
+    updateDatePickers();
+});
+
       </script>
-
-{% endblock %}
-
+      
+      
+      {% endblock %}
       
       
     </div>

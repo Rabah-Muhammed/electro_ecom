@@ -4,7 +4,7 @@
 
 {% block body %}
 <style>
-    /* Custom styles for add brand form */
+    /* Custom styles for brand list management */
     body {
         font-family: Arial, sans-serif;
         line-height: 1.6;
@@ -25,10 +25,15 @@
         padding: 20px;
         border-radius: 5px;
         margin-bottom: 40px; /* Add some space between form and brand list */
+        display: none; /* Hide by default */
+    }
+
+    .form-container.active {
+        display: block;
     }
 
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 15px; /* Reduced margin */
     }
 
     label {
@@ -38,8 +43,8 @@
 
     input[type="text"], textarea {
         width: 100%;
-        padding: 10px;
-        font-size: 16px;
+        padding: 8px; /* Reduced padding */
+        font-size: 14px; /* Reduced font size */
         border-radius: 3px;
         border: 1px solid #ccc;
         background-color: #fff;
@@ -48,8 +53,8 @@
 
     .btn {
         display: inline-block;
-        padding: 10px 20px;
-        font-size: 16px;
+        padding: 8px 16px; /* Reduced padding */
+        font-size: 14px; /* Reduced font size */
         cursor: pointer;
         text-align: center;
         text-decoration: none;
@@ -79,7 +84,7 @@
 
     .error {
         color: #dc3545;
-        font-size: 14px;
+        font-size: 12px; /* Reduced font size */
         margin-top: 5px;
     }
 
@@ -87,28 +92,49 @@
         max-width: 800px;
         margin: 0 auto;
         background: #343a40;
-        padding: 20px;
+        padding: 10px; /* Reduced padding */
         border-radius: 5px;
     }
 
     .brand-list h2 {
-        margin-bottom: 20px;
+        margin-bottom: 15px; /* Reduced margin */
+        font-size: 18px; /* Reduced font size */
     }
 
     .brand-item {
         padding: 10px;
         border-bottom: 1px solid #495057;
+        font-size: 14px; /* Reduced font size */
+    }
+
+    .brand-item h3 {
+        font-size: 16px; /* Reduced font size */
+        margin-bottom: 5px; /* Reduced margin */
+    }
+
+    .brand-item p {
+        margin: 5px 0; /* Reduced margin */
+    }
+
+    .brand-item .btn {
+        margin-right: 5px;
+        font-size: 12px; /* Reduced font size */
     }
 </style>
 
 <div class="page-content">
     <div class="page-header">
         <div class="container-fluid">
-            <h2 class="h5 no-margin-bottom">Add New Brand</h2>
+            <h2 class="h5 no-margin-bottom">Manage Brands</h2>
         </div>
     </div>
 
-    <div class="form-container">
+    <!-- Button to Show Add Brand Form -->
+    <button id="show_add_form" class="btn btn-primary">Add Brand</button>
+
+    <!-- Add Brand Form -->
+    <div id="add_form" class="form-container">
+        <h3>Add New Brand</h3>
         <form method="post">
             {% csrf_token %}
             {{ form.non_field_errors }}
@@ -137,8 +163,40 @@
             </div>
 
             <div class="form-group">
-                <button type="submit" class="btn btn-primary">Add Brand</button>
-                <a href="{% url 'brand_list' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" name="add_brand" class="btn btn-primary">Add Brand</button>
+                <button type="button" id="cancel_add" class="btn btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Edit Brand Form -->
+    <div id="edit_form" class="form-container">
+        <h3>Edit Brand</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="brand_id" id="edit_brand_id">
+            {{ form.non_field_errors }}
+            <div class="form-group">
+                <label for="edit_name">Brand Name</label>
+                <input type="text" name="name" id="edit_name" class="form-control">
+                <p class="error" id="edit_name_error"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="edit_slug">Slug</label>
+                <input type="text" name="slug" id="edit_slug" class="form-control">
+                <p class="error" id="edit_slug_error"></p>
+            </div>
+
+            <div class="form-group">
+                <label for="edit_description">Description</label>
+                <textarea name="description" id="edit_description" class="form-control"></textarea>
+                <p class="error" id="edit_description_error"></p>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" name="edit_brand" class="btn btn-primary">Update Brand</button>
+                <button type="button" id="cancel_edit" class="btn btn-secondary">Cancel</button>
             </div>
         </form>
     </div>
@@ -150,18 +208,61 @@
                 <h3>{{ brand.name }}</h3>
                 <p>{{ brand.description }}</p>
                 <p><strong>Slug:</strong> {{ brand.slug }}</p>
+                <button class="btn btn-secondary edit-btn" data-id="{{ brand.id }}" data-name="{{ brand.name }}" data-slug="{{ brand.slug }}" data-description="{{ brand.description }}">Edit</button>
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="brand_id" value="{{ brand.id }}">
+                    <button type="submit" name="delete_brand" class="btn btn-secondary">Delete</button>
+                </form>
             </div>
         {% endfor %}
     </div>
 </div>
 
 <script>
+    // Show and Hide Add Brand Form
+    document.getElementById('show_add_form').addEventListener('click', function() {
+        document.getElementById('add_form').classList.add('active');
+        document.getElementById('edit_form').classList.remove('active');
+    });
+
+    document.getElementById('cancel_add').addEventListener('click', function() {
+        document.getElementById('add_form').classList.remove('active');
+    });
+
+    // Show and Hide Edit Brand Form
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const slug = this.getAttribute('data-slug');
+            const description = this.getAttribute('data-description');
+
+            document.getElementById('edit_brand_id').value = id;
+            document.getElementById('edit_name').value = name;
+            document.getElementById('edit_slug').value = slug;
+            document.getElementById('edit_description').value = description;
+
+            document.getElementById('edit_form').classList.add('active');
+            document.getElementById('add_form').classList.remove('active');
+        });
+    });
+
+    document.getElementById('cancel_edit').addEventListener('click', function() {
+        document.getElementById('edit_form').classList.remove('active');
+    });
+
     // Handle slug auto-update based on brand name
-    document.getElementById('id_name').addEventListener('input', function(event) {
+    document.getElementById('edit_name').addEventListener('input', function(event) {
         const brandName = event.target.value;
         const slug = brandName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
-        document.getElementById('id_slug').value = slug;
+        document.getElementById('edit_slug').value = slug;
+    });
+
+    document.querySelector('#add_form input[name="name"]').addEventListener('input', function(event) {
+        const brandName = event.target.value;
+        const slug = brandName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+        document.querySelector('#add_form input[name="slug"]').value = slug;
     });
 </script>
-
 {% endblock %}

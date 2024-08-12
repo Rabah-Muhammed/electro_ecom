@@ -6,68 +6,101 @@
 
 {% block extracss %}
 <style>
-    /* Container and padding */
+    /* Container styling */
     .myaccount-content {
-        background-color: #ffffff;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 20px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 30px;
         margin-top: 20px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
-    /* Form input items */
-    .single-input-item {
+    /* Heading styling */
+    .myaccount-content h3 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #333;
+    }
+
+    /* Form container */
+    .account-details-form {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Form row styling */
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
         margin-bottom: 20px;
     }
 
-    /* Form labels */
-    .single-input-item label {
-        font-weight: bold;
-        display: block;
-        margin-bottom: 5px;
+    .form-col {
+        flex: 1;
+        min-width: calc(50% - 10px);
     }
 
-    /* Form inputs and error messages */
-    .single-input-item input[type="text"],
-    .single-input-item input[type="email"],
-    .single-input-item input[type="password"],
+    /* Form input styling */
+    .single-input-item {
+        margin-bottom: 15px;
+    }
+
+    .single-input-item label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+    }
+
+    .single-input-item input,
     .single-input-item textarea,
     .single-input-item select {
         width: 100%;
-        padding: 10px;
+        padding: 12px;
         font-size: 16px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
     }
 
-    /* Error messages */
+    .single-input-item input[type="file"] {
+        padding: 0;
+    }
+
+    /* Error message styling */
     .text-danger {
-        margin-top: 5px;
+        color: #e74c3c;
         font-size: 14px;
+        margin-top: 5px;
     }
 
-    /* Submit button */
+    /* Submit button styling */
     .single-input-item .btn-primary {
-        background-color: #007bff;
-        color: #ffffff;
+        background-color: #3498db;
+        color: #fff;
         border: none;
-        padding: 10px 20px;
+        padding: 12px 25px;
         cursor: pointer;
-        border-radius: 4px;
+        border-radius: 6px;
         font-size: 16px;
     }
 
     .single-input-item .btn-primary:hover {
-        background-color: #0056b3;
+        background-color: #2980b9;
     }
 
-    /* Current image styling */
+    /* Current image link styling */
     .single-input-item a {
-        color: #007bff;
+        color: #3498db;
         text-decoration: none;
+        display: inline-block;
         margin-top: 5px;
-        display: block;
+    }
+
+    .single-input-item a:hover {
+        text-decoration: underline;
     }
 </style>
 {% endblock %}
@@ -88,8 +121,8 @@
             {% endif %}
             
             <!-- UserForm fields -->
-            <div class="row">
-                <div class="col-lg-6">
+            <div class="form-row">
+                <div class="form-col">
                     <div class="single-input-item">
                         {{ user_form.first_name.label_tag }}
                         {{ user_form.first_name }}
@@ -102,7 +135,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="form-col">
                     <div class="single-input-item">
                         {{ user_form.last_name.label_tag }}
                         {{ user_form.last_name }}
@@ -142,7 +175,6 @@
                 {% endif %}
             </div>
 
-            <!-- Include other fields like address_line_2, city, state, country, and profile_picture similarly -->
             <div class="single-input-item">
                 {{ profile_form.address_line_2.label_tag }}
                 {{ profile_form.address_line_2 }}
@@ -155,8 +187,8 @@
                 {% endif %}
             </div>
 
-            <div class="row">
-                <div class="col-lg-6">
+            <div class="form-row">
+                <div class="form-col">
                     <div class="single-input-item">
                         {{ profile_form.city.label_tag }}
                         {{ profile_form.city }}
@@ -169,7 +201,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="form-col">
                     <div class="single-input-item">
                         {{ profile_form.state.label_tag }}
                         {{ profile_form.state }}
@@ -216,11 +248,10 @@
 
             <!-- Submit button -->
             <div class="single-input-item">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="submit" class="btn-primary">Save Changes</button>
             </div>
         </form>
     </div>
 </div>
-
 
 {% endblock %}

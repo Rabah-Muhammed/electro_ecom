@@ -25,7 +25,10 @@ urlpatterns = [
     path('top_selling/', views.top_selling_view, name='top_selling'),
     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('ledger-book/', views.ledger_book, name='ledger_book'),
-
+    path('product/<int:product_id>/delete_gallery_image/', views.delete_gallery_image, name='delete_gallery_image'),
+    path('api/available_dates/', views.available_dates, name='available_dates'),
+    path('api/get_available_order_dates/', views.get_available_order_dates, name='get_available_order_dates'),
+    path('most_sold_category/', views.most_sold_category, name='most_sold_category'),
     
 ]
   

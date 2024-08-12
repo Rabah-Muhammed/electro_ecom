@@ -12,6 +12,7 @@ from django.contrib.auth import update_session_auth_hash,logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.views.decorators.cache import cache_control
 from .forms import AddressForm
+from django.core.paginator import Paginator
 
 def dashboard(request):
     user = request.user
@@ -22,7 +23,12 @@ def dashboard(request):
 
 
 def orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    order_list = Order.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(order_list, 10)  # Show 10 orders per page
+
+    page_number = request.GET.get('page')
+    orders = paginator.get_page(page_number)
+
     return render(request, 'orders.html', {'orders': orders})
 
 def paymentmethod(request):

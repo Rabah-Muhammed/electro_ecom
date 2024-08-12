@@ -11,6 +11,40 @@
     <title>Category List</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+            .alert-container {
+                margin-top: 20px;
+            }
+
+            .alert {
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 5px;
+                color: #fff;
+            }
+
+            .alert-info {
+                background-color: #007bff;
+            }
+
+            .alert-success {
+                background-color: #28a745;
+            }
+
+            .alert-warning {
+                background-color: #ffc107;
+                color: #212529;
+            }
+
+            .alert-danger {
+                background-color: #dc3545;
+            }
+
+            .alert-dismissible .close {
+                color: #fff;
+                opacity: 1;
+                font-size: 20px;
+            }
+
         body {
             background-color: #2d3035;
             color: white;
@@ -70,19 +104,18 @@
         </div>
         <div class="container">
             {% if messages %}
-            <div class="alert alert-dismissible">
+            <div class="alert-container">
                 {% for message in messages %}
-                    {% if 'category' in message.tags %}
-                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-                            {{ message }}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                    {% endif %}
+                    <div class="alert alert-dismissible fade show {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
                 {% endfor %}
             </div>
-            {% endif %}
+        {% endif %}
+        
             
             <button type="button" class="btn btn-sm btn-primary mb-3" data-toggle="modal" data-target="#addModal">Add Category</button>
             <div class="table-responsive">
@@ -216,7 +249,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="offer_percentage">Offer Percentage:</label>
-                                    <input type="number" class="form-control" name="offer_percentage" id="offer_percentage" step="0.01" min="0" max="100" required>
+                                    <input type="number" class="form-control" name="offer_percentage" id="offer_percentage" step="0.01" min="0" max="100">
                                 </div>
                                 <div class="form-group">
                                     <label for="cat_image">Category Image:</label>

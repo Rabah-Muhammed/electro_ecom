@@ -79,7 +79,6 @@ def remove_cart_item(request, product_id):
     except (Cart.DoesNotExist, Product.DoesNotExist, CartItem.DoesNotExist) as e:
         return JsonResponse({'status': 'error', 'message': str(e)})
 
-# In your views.py
 
 def cart(request):
     total = 0
@@ -203,10 +202,6 @@ def checkout(request, total=0, quantity=0, cart_items=None):
         'delivery_charge': delivery_charge,  
     }
     return render(request, 'layouts/checkout.html', context)
-
-
-
-
 
 
 def checkoutaddress(request):
@@ -711,11 +706,24 @@ def payment_failed(request):
 
 @login_required(login_url='login')
 def checkout_repay(request, order_id):
-    # Fetch the specific failed order
     order = get_object_or_404(Order, id=order_id, status='Payment Failed')
+
+    # Get or create the cart
+    cart_id = _cart_id(request)
+    cart, created = Cart.objects.get_or_create(cart_id=cart_id)
+
+    # Clear existing cart items
+    CartItem.objects.filter(cart=cart).delete()
+
+    # Add order items back to the cart
+    order_items = OrderItem.objects.filter(order=order)
+    for order_item in order_items:
+        CartItem.objects.create(
+            cart=cart,
+            product=order_item.product,
+            Quantity=order_item.quantity,  # Use Quantity instead of quantity
+            is_active=True
+        )
     
-    # Store the order ID in the session to retrieve it in the checkout view
-    request.session['repay_order_id'] = order_id
-    
-    # Redirect to the checkout page
     return redirect('checkout')
+

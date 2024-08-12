@@ -1,0 +1,58 @@
+{% extends 'ahome.html' %}
+
+{% load static %}
+
+{% block body %}
+<div class="page-content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <h2 class="h5 no-margin-bottom">Edit Brand</h2>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-group">
+                <label for="id_name">Brand Name</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <p class="error">{{ form.name.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_slug">Slug</label>
+                {{ form.slug }}
+                {% if form.slug.errors %}
+                    <p class="error">{{ form.slug.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_description">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <p class="error">{{ form.description.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Update Brand</button>
+                <a href="{% url 'brand_list' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Handle slug auto-update based on brand name
+    document.getElementById('id_name').addEventListener('input', function(event) {
+        const brandName = event.target.value;
+        const slug = brandName.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+        document.getElementById('id_slug').value = slug;
+    });
+</script>
+
+{% endblock %}

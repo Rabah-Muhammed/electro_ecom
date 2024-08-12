@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import json
 from django.utils import timezone
 from io import BytesIO
 from django.contrib import messages
@@ -28,6 +29,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from .utils import generate_ledger_pdf
 from .forms import BrandForm, DateRangeForm
+from django.views.decorators.http import require_POST
+from django.db.models import Min, Max
 
 User = get_user_model()
 
@@ -36,12 +39,12 @@ logger = logging.getLogger(__name__)
 # Decorator to check if the user is a superuser
 
 def admin_required(view_func):
+    @login_required(login_url='alogin')
     def wrapper(request, *args, **kwargs):
         if not request.user.is_superuser:
             return redirect('alogin')  
         return view_func(request, *args, **kwargs)
     return wrapper
-
 
 def adminlogin(request):
     error_message = None 
@@ -66,7 +69,7 @@ def adminlogin(request):
     
     return render(request, 'adminlogin.html', {'error_message': error_message})
 
-
+@admin_required
 def ahome(request):
     return render(request, 'ahome.html')
 
@@ -75,9 +78,7 @@ def adminlogout(request):
     return redirect('alogin')
 
 
-
 @cache_control(no_cache=True,must_revalidate=True,no_store=True)
-@admin_required
 def user_list(request):
     users = User.objects.filter(is_superuser=False).order_by('-id')
     if request.method == 'POST':
@@ -94,7 +95,6 @@ def user_list(request):
 
 
 @cache_control(no_cache=True,must_revalidate=True,no_store=True)
-@admin_required
 def update_status(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if request.method == 'POST':
@@ -111,7 +111,6 @@ def update_status(request, user_id):
 def categorylist(request):
     categories = Category.objects.all()
     return render(request, 'categorylist.html', {'categories': categories})
-
 
 def addcategory(request):
     if request.method == 'POST':
@@ -143,6 +142,7 @@ def addcategory(request):
         return redirect('categorylist')
     
     return redirect('categorylist')
+
 
 def editcategory(request, category_id):
     category = get_object_or_404(Category, id=category_id)
@@ -178,7 +178,6 @@ def editcategory(request, category_id):
     return render(request, 'categoryform.html', {'category': category})
 
 
-
 def deletecategory(request, category_id, soft_delete=True):
     category = get_object_or_404(Category, id=category_id)
     
@@ -194,6 +193,7 @@ def deletecategory(request, category_id, soft_delete=True):
         return redirect('categorylist')
     
     return render(request, 'deletecategory.html', {'category': category})
+
 
 def productlist(request):
     products = Product.objects.all().order_by('id')
@@ -212,6 +212,7 @@ def productlist(request):
         'products': products,
     }
     return render(request, 'productlist.html', context)
+
 
 def addproduct(request):
     if request.method == 'POST':
@@ -256,6 +257,7 @@ def editproduct(request, product_id):
 
     return render(request, 'editproduct.html', {'form': form, 'product': product})
 
+
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
@@ -271,6 +273,7 @@ def delete_product(request, product_id):
     
     return redirect('productlist')
 
+
 def delete_gallery_image(request, product_id, image_id):
     if request.method == 'POST':
         product = get_object_or_404(Product, pk=product_id)
@@ -280,8 +283,6 @@ def delete_gallery_image(request, product_id, image_id):
     return JsonResponse({'status': 'error'}, status=400)
 
 
-@login_required(login_url='login')
-@admin_required
 def manage_orders(request):
     if request.method == 'POST':
         order_id = request.POST.get('order_id')
@@ -325,8 +326,8 @@ def manage_orders(request):
     orders = Order.objects.all().order_by('-created_at')
     return render(request, 'order_management.html', {'orders': orders})
 
-@login_required(login_url='login')
-@admin_required
+
+
 def return_order(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     
@@ -407,6 +408,7 @@ def generate_pdf(orders, report_type, start_date=None, end_date=None):
     doc.build(elements)
     return response
 
+
 def generate_excel_report(orders):
     # Create a DataFrame from the orders queryset.
     data = {
@@ -434,6 +436,7 @@ def generate_excel_report(orders):
     response['Content-Disposition'] = 'attachment; filename=sales_report.xlsx'
 
     return response
+
 
 def sales_report(request):
     report_type = request.GET.get('report_type', 'daily')
@@ -538,6 +541,7 @@ def sales_report(request):
 
     return render(request, 'sales_report.html', context)
 
+
 def get_top_selling_products():
     # Aggregate the total quantity sold for each product
     top_products = OrderItem.objects.values('product').annotate(total_sold=Sum('quantity')).order_by('-total_sold')[:10]
@@ -569,6 +573,7 @@ def get_top_selling_categories():
     
     return top_categories_details
 
+
 def get_top_selling_brands():
     # Aggregate the total quantity sold for each brand
     top_brands = OrderItem.objects.values('product__brand').annotate(total_sold=Sum('quantity')).order_by('-total_sold')[:10]
@@ -590,6 +595,7 @@ def get_top_selling_brands():
     
     return top_brands_details
 
+
 def top_selling_view(request):
     top_products = get_top_selling_products()
     top_categories = get_top_selling_categories()
@@ -605,10 +611,8 @@ def top_selling_view(request):
     return render(request, 'top_selling.html', context)
 
 
-def get_monthly_sales_data():
-    today = timezone.now()
-    start_date = today - timedelta(days=30)
-    sales_data = Order.objects.filter(created_at__gte=start_date).extra(
+def get_monthly_sales_data(start_date, end_date):
+    sales_data = Order.objects.filter(created_at__range=[start_date, end_date]).extra(
         {'day': "date(created_at)"}
     ).values('day').annotate(total=Sum('total_amount')).order_by('day')
     
@@ -617,10 +621,10 @@ def get_monthly_sales_data():
     
     return sales_labels, sales_totals
 
-def get_monthly_orders_data():
-    today = timezone.now()
-    start_date = today - timedelta(days=30)
-    orders_data = Order.objects.filter(created_at__gte=start_date).extra(
+
+
+def get_monthly_orders_data(start_date, end_date):
+    orders_data = Order.objects.filter(created_at__range=[start_date, end_date]).extra(
         {'day': "date(created_at)"}
     ).values('day').annotate(count=Count('id')).order_by('day')
     
@@ -629,10 +633,9 @@ def get_monthly_orders_data():
     
     return orders_labels, orders_counts
 
-def get_yearly_sales_data():
-    today = timezone.now()
-    start_date = today.replace(year=today.year - 1)
-    sales_data = Order.objects.filter(created_at__gte=start_date).extra(
+
+def get_yearly_sales_data(start_date, end_date):
+    sales_data = Order.objects.filter(created_at__range=[start_date, end_date]).extra(
         {'month': "TO_CHAR(created_at, 'YYYY-MM')"}
     ).values('month').annotate(total=Sum('total_amount')).order_by('month')
     
@@ -641,10 +644,9 @@ def get_yearly_sales_data():
     
     return sales_labels, sales_totals
 
-def get_yearly_orders_data():
-    today = timezone.now()
-    start_date = today.replace(year=today.year - 1)
-    orders_data = Order.objects.filter(created_at__gte=start_date).extra(
+
+def get_yearly_orders_data(start_date, end_date):
+    orders_data = Order.objects.filter(created_at__range=[start_date, end_date]).extra(
         {'month': "TO_CHAR(created_at, 'YYYY-MM')"}
     ).values('month').annotate(count=Count('id')).order_by('month')
     
@@ -653,24 +655,58 @@ def get_yearly_orders_data():
     
     return orders_labels, orders_counts
 
+
+def most_sold_category(request):
+    most_sold_category_data = (
+        OrderItem.objects.values('product__category__category_name')
+        .annotate(total_sold=Count('quantity'))
+        .order_by('-total_sold')
+    )
+
+    categories = [item['product__category__category_name'] for item in most_sold_category_data]
+    quantities = [item['total_sold'] for item in most_sold_category_data]
+
+    return JsonResponse({
+        'labels': categories,
+        'data': quantities,
+    })
+
+
 def admin_dashboard(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         report_type = request.GET.get('report_type', 'monthly')
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+
+        # Convert date strings to datetime objects
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        except (TypeError, ValueError):
+            start_date = timezone.now() - timedelta(days=30)
+            end_date = timezone.now()
+
         if report_type == 'monthly':
-            sales_labels, sales_data = get_monthly_sales_data()
-            orders_labels, orders_data = get_monthly_orders_data()
+            sales_labels, sales_data = get_monthly_sales_data(start_date, end_date)
+            orders_labels, orders_data = get_monthly_orders_data(start_date, end_date)
         else:
-            sales_labels, sales_data = get_yearly_sales_data()
-            orders_labels, orders_data = get_yearly_orders_data()
+            sales_labels, sales_data = get_yearly_sales_data(start_date, end_date)
+            orders_labels, orders_data = get_yearly_orders_data(start_date, end_date)
         
+        # Fetch most sold category data
+        most_sold_category_data = most_sold_category(request)
+        category_data = json.loads(most_sold_category_data.content)  # Parse JSON response
+
         data = {
             'sales_labels': sales_labels,
             'sales_data': sales_data,
             'orders_labels': orders_labels,
             'orders_data': orders_data,
+            'category_labels': category_data['labels'],
+            'category_data': category_data['data'],
         }
         return JsonResponse(data)
-    
+
     total_sales = Order.objects.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
     total_coupon = Order.objects.aggregate(Sum('coupon_discount'))['coupon_discount__sum'] or 0
     total_orders = Order.objects.count()
@@ -680,11 +716,8 @@ def admin_dashboard(request):
         'total_coupon': total_coupon,
         'total_orders': total_orders,
     }
-    
-    logger.info("Context data: %s", context)  # Log the context data
-    
-    return render(request, 'ahome.html', context)
 
+    return render(request, 'ahome.html', context)
 
 def generate_ledger_pdf(start_date=None, end_date=None):
     response = HttpResponse(content_type='application/pdf')
@@ -823,14 +856,78 @@ def ledger_book(request):
 
 
 def brand_list(request):
-    form = BrandForm(request.POST or None)
+    if request.method == 'POST':
+        form = BrandForm(request.POST, request.FILES)
+        if 'add_brand' in request.POST:  # Adding a brand
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Brand added successfully!')
+                return redirect('brand_list')
+        elif 'edit_brand' in request.POST:  # Editing a brand
+            brand_id = request.POST.get('brand_id')
+            brand = get_object_or_404(Brand, id=brand_id)
+            form = BrandForm(request.POST, request.FILES, instance=brand)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Brand updated successfully!')
+                return redirect('brand_list')
+        elif 'delete_brand' in request.POST:  # Deleting a brand
+            brand_id = request.POST.get('brand_id')
+            brand = get_object_or_404(Brand, id=brand_id)
+            brand.delete()
+            messages.success(request, 'Brand deleted successfully!')
+            return redirect('brand_list')
+    else:
+        form = BrandForm()
+    
     brands = Brand.objects.all()
-    if form.is_valid():
-        form.save()
-        # Redirect or reload the page to clear the form
-        return redirect('brand_list')
     context = {
         'form': form,
         'brands': brands
     }
     return render(request, 'brand_list.html', context)
+
+@require_POST
+def delete_gallery_image(request, product_id):
+    image_id = request.GET.get('image_id')
+    try:
+        image = ProductGallery.objects.get(id=image_id, product_id=product_id)
+        image.delete()
+        return JsonResponse({'success': True})
+    except ProductGallery.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Image not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+
+def available_dates(request):
+    orders = Order.objects.all()
+    if not orders:
+        return JsonResponse({'min_date': '', 'max_date': ''})
+
+    min_date = orders.order_by('created_at').first().created_at.date()
+    max_date = orders.order_by('-created_at').first().created_at.date()
+
+    # Add one day to max_date to allow the end date selection
+    max_date += timedelta(days=1)
+
+    return JsonResponse({'min_date': min_date.isoformat(), 'max_date': max_date.isoformat()})
+
+
+def get_available_order_dates(request):
+    min_date = Order.objects.aggregate(min_date=Min('created_at'))['min_date']
+    max_date = Order.objects.aggregate(max_date=Max('created_at'))['max_date']
+
+    if min_date and max_date:
+        min_date = min_date.date()
+        max_date = max_date.date()
+    else:
+        # Set default values if no orders exist
+        today = timezone.now().date()
+        min_date = today
+        max_date = today
+
+    return JsonResponse({
+        'min_date': min_date.isoformat(),
+        'max_date': max_date.isoformat()
+    })

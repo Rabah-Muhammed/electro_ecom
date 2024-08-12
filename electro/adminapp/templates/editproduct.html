@@ -241,15 +241,15 @@
                 <input type="file" name="gallery_images" id="id_gallery_images" multiple>
                 <div class="image-preview" id="galleryImagePreview">
                     <!-- Existing gallery images preview -->
-                    {% for image in product.gallery_images.all %}
+                    {% for image in product.productgallery_set.all %}
                         <div>
-                            <img src="{{ image.image.url }}" alt="Gallery Image">
+                            <img src="{{ image.image.url }}" alt="Gallery Image" style="max-width: 100px; max-height: 100px; margin-right: 10px; border-radius: 5px; border: 1px solid #ccc;">
                             <a href="{{ image.image.url }}" target="_blank">View</a>
+                            <button type="button" class="btn btn-danger btn-sm delete-image" data-image-id="{{ image.id }}">Delete</button>
                         </div>
                     {% endfor %}
                 </div>
             </div>
-
             <!-- Offer Percentage Field -->
             <div class="form-group">
                 <label for="id_offer_percentage">Offer Percentage</label>
@@ -296,6 +296,32 @@
 </div>
 
 <script>
+      document.querySelectorAll('.delete-image').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const imageId = this.getAttribute('data-image-id');
+            const url = '{% url "delete_gallery_image" product.id %}';
+
+            if (confirm('Are you sure you want to delete this image?')) {
+                fetch(`${url}?image_id=${imageId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Image deleted successfully.');
+                        location.reload();
+                    } else {
+                        alert('Failed to delete the image.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
+    });
+    // Preview for main image
     let cropper;
     const cropperContainer = document.getElementById('cropperContainer');
     const cropperImage = document.getElementById('cropperImage');
@@ -306,11 +332,9 @@
         if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Show the cropper container
                 cropperContainer.style.display = 'block';
                 cropperImage.src = e.target.result;
 
-                // Initialize cropper.js
                 if (cropper) {
                     cropper.destroy();
                 }
@@ -338,16 +362,44 @@
                     },
                 }).then(response => response.json())
                   .then(data => {
-                      // Handle the response
                       if (data.success) {
                           alert('Image cropped and uploaded successfully.');
-                          location.reload(); // Optionally reload the page
+                          location.reload();
                       } else {
                           alert('Failed to upload the cropped image.');
                       }
                   })
                   .catch(error => console.error('Error:', error));
             });
+        }
+    });
+
+    // Preview for gallery images
+    const galleryImagesInput = document.getElementById('id_gallery_images');
+    const galleryImagePreview = document.getElementById('galleryImagePreview');
+
+    galleryImagesInput.addEventListener('change', function(event) {
+        galleryImagePreview.innerHTML = ''; // Clear the previous previews
+        const files = event.target.files;
+        for (const file of files) {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewDiv = document.createElement('div');
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.alt = 'Gallery Image';
+                    img.style.maxWidth = '100px';
+                    img.style.maxHeight = '100px';
+                    img.style.marginRight = '10px';
+                    img.style.borderRadius = '5px';
+                    img.style.border = '1px solid #ccc';
+
+                    previewDiv.appendChild(img);
+                    galleryImagePreview.appendChild(previewDiv);
+                };
+                reader.readAsDataURL(file);
+            }
         }
     });
 
